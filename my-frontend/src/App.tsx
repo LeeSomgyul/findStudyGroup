@@ -1,9 +1,15 @@
 import React from 'react';
+import {Outlet} from "react-router-dom";
+
+import Navbar from "./Components/Navbar";
 
 function App(){
   return(
       <div>
-        <h1>Hello. React!</h1>
+          <Navbar/>
+          <div>
+              <Outlet/>
+          </div>
       </div>
   );
 }
