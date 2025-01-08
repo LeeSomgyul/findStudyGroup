@@ -15,36 +15,83 @@ const joinForm: React.FC = () => {
     const [birthDateError, setBirthDateError] = useState("");
     const [nickname, setNickname] = useState("");
     const [nicknameError, setNicknameError] = useState("");
-    const [profileImage, setProfileImage] = useState("");
-
+    const [profileImage, setProfileImage] = useState<File|null>(null);
 
     /*유효성 검사*/
-    const validateEmail = {
-
+    const validateEmail = (e: React.FocusEvent<HTMLInputElement>) => {
+        const emailRegex = /^[\w-.]+@[\w-]+\.[a-z]{2,4}$/i;
+        if(!email) {
+            setEmailError("이메일을 입력해주세요.");
+        }else if(!emailRegex.test(email)){
+            setEmailError("올바른 이메일 형식이 아닙니다.");
+        }else{
+            setEmailError("");
+        }
     };
 
-    const validatePassword = {
-
+    const validatePassword = (e: React.FocusEvent<HTMLInputElement>) => {
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{5,15}$/;
+        if(!password){
+            setPasswordError("비밀번호를 입력해주세요.");
+        }else if(!passwordRegex.test(password)){
+            setPasswordError("비밀번호는 5~15자 이며, 특수문자, 영문자, 숫자가 각각 하나 이상 포함되어야 합니다.");
+        }else{
+            setPasswordError("");
+        }
     };
 
-    const validateConfirmPassword = {
-
+    const validateConfirmPassword = (e: React.FocusEvent<HTMLInputElement>) => {
+        if(!confirmPassword){
+            setConfirmPasswordError("비밀번호 확인을 입력해주세요.");
+        }else if(confirmPassword !== password){
+            setConfirmPasswordError("비밀번호와 일치하지 않습니다.");
+        }else{
+            setConfirmPasswordError("");
+        }
     };
 
-    const validateNickname = {
-
+    const validateNickname = (e: React.FocusEvent<HTMLInputElement>) => {
+        const nicknameRegex = /^[^\s!@#$%^&*(),.?":{}|<>]{2,6}$/;
+        if(!nickname){
+            setNicknameError("닉네임을 입력해주세요.");
+        }else if(!nicknameRegex.test(nickname)){
+            setNicknameError("닉네임은 2~6자 이며, 특수문자나 공백이 포함될 수 없습니다.");
+        }else{
+            setNicknameError("");
+        }
     }
 
-    const validatePhone = {
-
+    const validatePhone = (e: React.FocusEvent<HTMLInputElement>) => {
+        const phoneRegex = /^\d{11}$/;
+        if(!phone){
+            setPhoneError("휴대전화를 입력해주세요.");
+        }else if(!phoneRegex.test(phone)){
+            setPhoneError("휴대전화는 숫자 11자리를 입력해야 합니다.");
+        }else{
+            setPhoneError("");
+        }
     }
 
-    const validateName = {
-
+    const validateName = (e: React.FocusEvent<HTMLInputElement>) => {
+        const nameRegex = /^[^\d!@#$%^&*(),.?":{}|<>\s]+$/;
+        if(!name){
+            setNameError("이름을 입력해주세요.");
+        }else if(!nameRegex.test(name)){
+            setNameError("이름에는 숫자, 특수문자 또는 공백이 포함될 수 없습니다.");
+        }else{
+            setNameError("");
+        }
     }
 
-    const validateBirthDate = {
-
+    const validateBirthDate = (e: React.FocusEvent<HTMLInputElement>) => {
+        const birthDateRegex = /^\d{8}$/;
+        if(!birthDate){
+            setBirthDateError("생년월일을 입력해주세요.");
+        }else if(!birthDateRegex.test(birthDate)){
+            setBirthDateError("생년월일은 숫자 8자리를 입력해야 합니다.");
+        }else{
+            setBirthDateError("");
+        }
     }
 
     /*중복확인 버튼*/
