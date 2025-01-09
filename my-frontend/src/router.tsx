@@ -7,7 +7,7 @@ import MySpace from "./Routers/MySpace";
 import Community from "./Routers/Community";
 import Event from "./Routers/Event";
 import Login from "./Routers/Login";
-import Signup from "./Routers/Signup";
+import Join from "./Routers/join";
 
 const router = createBrowserRouter([
     {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
     },
     //Navbar 없는 페이지
     {path: "login", element: <Login/>},
-    {path: "signup", element: <Signup/>},
+    {path: "signup", element: <Join/>},
 ]);
 
 export default router;

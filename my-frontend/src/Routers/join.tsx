@@ -1,6 +1,8 @@
 import React, {useState} from "react";
+import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
-const joinForm: React.FC = () => {
+const JoinForm: React.FC = () => {
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
     const [password, setPassword] = useState("");
@@ -107,9 +109,55 @@ const joinForm: React.FC = () => {
 
     };
 
-    /*가입하기 버튼*/
-    const handleSubmit = (e: React.FormEvent) => {
+    const navigate = useNavigate();
 
+    /*가입하기 버튼*/
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        //유효성 검사를 통과하지 못한 경우
+        if(emailError || passwordError || confirmPasswordError || phoneError || nameError || birthDateError || nicknameError){
+            alert("입력값을 확인해주세요.");
+            return;
+        }
+
+        //유효성 검사를 통과한 경우
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("password", password);
+        formData.append("phone", phone);
+        formData.append("name", name);
+        formData.append("birthDate", birthDate);
+        formData.append("nickname", nickname);
+        if(profileImage){
+            formData.append("profileImage", profileImage);
+        }
+
+        try{
+            const response = await axios.post("/api/register", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            if(response.status == 201){
+                alert("회원가입이 완료되었습니다.");
+
+                setEmail("");
+                setPassword("");
+                setConfirmPassword("");
+                setPhone("");
+                setName("");
+                setBirthDate("");
+                setNickname("");
+                setProfileImage(null);
+
+                navigate("/");
+            }
+        }catch (error){
+            console.error("회원가입 요청 중 오류 발생: ", error);
+            alert("회원가입 중 오류가 발생하였습니다. 다시 시도해주세요.");
+        }
     };
 
     return (
@@ -124,10 +172,10 @@ const joinForm: React.FC = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={validateEmail}
                 />
-                {emailError && <p>{emailError}</p>}
                 <button type="button" onClick={handleEmailCheck}>
                     중복확인
                 </button>
+                {emailError && <p>{emailError}</p>}
             </div>
 
             <div>
@@ -160,10 +208,10 @@ const joinForm: React.FC = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     onBlur={validatePhone}
                 />
-                {phoneError && <p>{phoneError}</p>}
                 <button type="button" onClick={handlePhoneVerification}>
                     인증하기
                 </button>
+                {phoneError && <p>{phoneError}</p>}
             </div>
 
             <div>
@@ -196,10 +244,10 @@ const joinForm: React.FC = () => {
                     onChange={(e) => setNickname(e.target.value)}
                     onBlur={validateNickname}
                 />
-                {nicknameError && <p>{nicknameError}</p>}
                 <button type="button" onClick={handleNicknameCheck}>
                     중복확인
                 </button>
+                {nicknameError && <p>{nicknameError}</p>}
             </div>
 
             <div>
@@ -223,4 +271,4 @@ const joinForm: React.FC = () => {
     );
 };
 
-export default joinForm;
+export default JoinForm;
