@@ -1,45 +1,17 @@
-package com.somgyul.findstudygroup.entity;
+package com.somgyul.findstudygroup.dto;
 
-import jakarta.persistence.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "users")
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+public class UserRegisterRequest {
     private String email;
-
-    @Column(nullable = false)
     private String password;
-
-    @Column(nullable = false, unique = true)
     private String phone;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false)
     private LocalDate birthDate;
-
-    @Column(nullable = false, unique = true)
     private String nickname;
-
-    @Lob
-    private byte[] profileImage;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private MultipartFile profileImage;
 
     public String getEmail() {
         return email;
@@ -89,11 +61,11 @@ public class User {
         this.nickname = nickname;
     }
 
-    public byte[] getProfileImage() {
+    public MultipartFile getProfileImage() {
         return profileImage;
     }
 
-    public void setProfileImage(byte[] profileImage) {
+    public void setProfileImage(MultipartFile profileImage) {
         this.profileImage = profileImage;
     }
 }

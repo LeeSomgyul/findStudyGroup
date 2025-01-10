@@ -134,7 +134,7 @@ const JoinForm: React.FC = () => {
         }
 
         try{
-            const response = await axios.post("/api/register", formData, {
+            const response = await axios.post("/api/userRegister", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
