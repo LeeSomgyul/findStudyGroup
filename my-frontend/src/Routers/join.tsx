@@ -122,21 +122,20 @@ const JoinForm: React.FC = () => {
         }
 
         //유효성 검사를 통과한 경우
-        const formData = new FormData();
-        formData.append("email", email);
-        formData.append("password", password);
-        formData.append("phone", phone);
-        formData.append("name", name);
-        formData.append("birthDate", birthDate);
-        formData.append("nickname", nickname);
-        if(profileImage){
-            formData.append("profileImage", profileImage);
-        }
+        const userData = {
+            email,
+            password,
+            phone,
+            name,
+            birthDate,
+            nickname,
+            profileImage: profileImage ? profileImage.name : null,
+        };
 
         try{
-            const response = await axios.post("/api/userRegister", formData, {
+            const response = await axios.post("/api/userRegister", userData, {
                 headers: {
-                    "Content-Type": "multipart/form-data",
+                    "Content-Type": "application/json",
                 },
             });
 
