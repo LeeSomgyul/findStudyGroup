@@ -4,9 +4,9 @@ import com.somgyul.findstudygroup.dto.UserRegisterRequest;
 import com.somgyul.findstudygroup.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -16,9 +16,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/userRegister")
-    public ResponseEntity<String> registerUser(@RequestBody UserRegisterRequest request) {
+    public ResponseEntity<String> registerUser(
+            @RequestPart("data") UserRegisterRequest request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ) {
         try{
-            userService.registerUser(request);
+            userService.registerUser(request, profileImage);
             return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공!");
         }catch (IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

@@ -122,20 +122,23 @@ const JoinForm: React.FC = () => {
         }
 
         //유효성 검사를 통과한 경우
-        const userData = {
-            email,
-            password,
-            phone,
-            name,
-            birthDate,
-            nickname,
-            profileImage: profileImage ? profileImage.name : null,
-        };
+        const formData = new FormData();
+        formData.append("data", JSON.stringify({
+            email: email,
+            password: password,
+            phone: phone,
+            name: name,
+            birthDate: birthDate,
+            nickname: nickname,
+        }));
+        if(profileImage){
+            formData.append("profileImage", profileImage);
+        }
 
         try{
-            const response = await axios.post("/api/userRegister", userData, {
+            const response = await axios.post("/api/userRegister", formData, {
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "multipart/form-data",
                 },
             });
 
@@ -152,10 +155,26 @@ const JoinForm: React.FC = () => {
                 setProfileImage(null);
 
                 navigate("/");
+            }else{
+                console.error("예상치 못한 응답 코드: ", response.status);
+                alert("회원가입 요청이 정상적으로 처리되지 않았습니다. 잠시 후 다시 시도해주세요.");
             }
-        }catch (error){
-            console.error("회원가입 요청 중 오류 발생: ", error);
-            alert("회원가입 중 오류가 발생하였습니다. 다시 시도해주세요.");
+        }catch (error: any){
+            //오류 종류 확인
+            if (error.response) {
+                // 서버가 응답했지만 상태 코드가 2xx 범위를 벗어난 경우
+                console.error("서버 응답 오류:", error.response.data);
+                const errorMessage = error.response.data || "회원가입 요청이 실패했습니다.";
+                alert(errorMessage);
+            } else if (error.request) {
+                // 요청이 전송되었으나 응답이 없을 경우
+                console.error("서버 응답 없음:", error.request);
+                alert("서버와의 연결에 실패했습니다. 네트워크 상태를 확인해주세요.");
+            } else {
+                // 다른 오류 (예: 코드 문제)
+                console.error("알 수 없는 오류 발생:", error.message);
+                alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         }
     };
 

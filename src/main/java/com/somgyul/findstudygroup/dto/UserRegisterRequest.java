@@ -9,7 +9,7 @@ public class UserRegisterRequest {
     private String password;
     private String phone;
     private String name;
-    private LocalDate birthDate;
+    private String birthDate;
     private String nickname;
     private MultipartFile profileImage;
 
@@ -45,11 +45,11 @@ public class UserRegisterRequest {
         this.name = name;
     }
 
-    public LocalDate getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 

@@ -2,8 +2,6 @@ package com.somgyul.findstudygroup.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "users")
 public class User {
@@ -25,13 +23,13 @@ public class User {
     private String name;
 
     @Column(nullable = false)
-    private LocalDate birthDate;
+    private String birthDate;
 
     @Column(nullable = false, unique = true)
     private String nickname;
 
-    @Lob
-    private byte[] profileImage;
+    @Column
+    private String profileImage;
 
     public Long getId() {
         return id;
@@ -73,11 +71,11 @@ public class User {
         this.name = name;
     }
 
-    public LocalDate getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -89,11 +87,11 @@ public class User {
         this.nickname = nickname;
     }
 
-    public byte[] getProfileImage() {
+    public String getProfileImage() {
         return profileImage;
     }
 
-    public void setProfileImage(byte[] profileImage) {
+    public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
 }
