@@ -123,14 +123,9 @@ const JoinForm: React.FC = () => {
 
         //유효성 검사를 통과한 경우
         const formData = new FormData();
-        formData.append("data", JSON.stringify({
-            email: email,
-            password: password,
-            phone: phone,
-            name: name,
-            birthDate: birthDate,
-            nickname: nickname,
-        }));
+        formData.append("data", new Blob([JSON.stringify({
+            email, password, phone, name, birthDate, nickname,
+        })],{ type: "application/json" }));
         if(profileImage){
             formData.append("profileImage", profileImage);
         }

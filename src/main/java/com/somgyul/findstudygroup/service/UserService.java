@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,7 +45,7 @@ public class UserService {
                 }
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(profileImage.getInputStream(), filePath);
-                profileImagePath = filePath.toString();
+                profileImagePath = "/uploads/" + fileName;//데이터베이스에 저장할 '상대경로'
             }
 
             //나머지 입력값들 저장
@@ -52,14 +53,18 @@ public class UserService {
             user.setEmail(request.getEmail());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setPhone(request.getPhone());
-            user.setName(request.getNickname());
+            user.setName(request.getName());
             user.setBirthDate(request.getBirthDate());
             user.setNickname(request.getNickname());
             user.setProfileImage(profileImagePath);
 
             userRepository.save(user);
+        }catch (IOException e){
+            throw new RuntimeException("이미지 처리 중 오류 발생: ", e);
+        }catch (IllegalArgumentException e){
+            throw e;
         }catch (Exception e){
-            throw new RuntimeException("회원가입 처리 중 오류 발생");
+            throw new RuntimeException("회원가입 처리 중 오류 발생: ", e);
         }
     }
 }

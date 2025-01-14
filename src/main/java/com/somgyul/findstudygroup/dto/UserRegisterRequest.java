@@ -2,7 +2,6 @@ package com.somgyul.findstudygroup.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 
 public class UserRegisterRequest {
     private String email;
@@ -11,7 +10,7 @@ public class UserRegisterRequest {
     private String name;
     private String birthDate;
     private String nickname;
-    private MultipartFile profileImage;
+    //private MultipartFile profileImage;
 
     public String getEmail() {
         return email;
@@ -61,11 +60,11 @@ public class UserRegisterRequest {
         this.nickname = nickname;
     }
 
-    public MultipartFile getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(MultipartFile profileImage) {
-        this.profileImage = profileImage;
-    }
+//    public MultipartFile getProfileImage() {
+//        return profileImage;
+//    }
+//
+//    public void setProfileImage(MultipartFile profileImage) {
+//        this.profileImage = profileImage;
+//    }
 }
