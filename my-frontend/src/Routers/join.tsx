@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 
@@ -18,6 +18,25 @@ const JoinForm: React.FC = () => {
     const [nickname, setNickname] = useState("");
     const [nicknameError, setNicknameError] = useState("");
     const [profileImage, setProfileImage] = useState<File|null>(null);
+    const [isEmailCheck, setIsEmailCheck] = useState(false);
+    const [isNicknameCheck, setIsNicknameCheck] = useState(false);
+
+    const emailRef = useRef<HTMLInputElement>(null);
+    const passwordRef = useRef<HTMLInputElement>(null);
+    const confirmPasswordRef = useRef<HTMLInputElement>(null);
+    const phoneRef = useRef<HTMLInputElement>(null);
+    const nameRef = useRef<HTMLInputElement>(null);
+    const birthDateRef = useRef<HTMLInputElement>(null);
+    const nicknameRef = useRef<HTMLInputElement>(null);
+
+    /*아이디(이메일) 및 닉네임 값이 바뀔때마다 실행*/
+    useEffect(() => {
+        setIsEmailCheck(false)
+    }, [email]);
+
+    useEffect(() => {
+        setIsNicknameCheck(false)
+    }, [nickname]);
 
     /*유효성 검사*/
     const validateEmail = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -96,13 +115,48 @@ const JoinForm: React.FC = () => {
         }
     }
 
-    /*중복확인 버튼*/
-    const handleEmailCheck = () => {
-
+    /*아이디(이메일) 중복확인 버튼*/
+    const handleEmailCheck = async() => {
+        if(!email){
+            alert("아이디(이메일)을 입력해주세요.");
+            return;
+        }
+        try{
+            const response = await axios.get(`/api/checkEmail`, {
+                params: {email},
+            });
+            alert(response.data);
+            setIsEmailCheck(true);
+        }catch (error){
+            if(axios.isAxiosError(error)){
+                alert(error.response?.data);
+            }else{
+                alert("중복 확인 중 오류가 발생하였습니다.");
+            }
+            setIsEmailCheck(false);
+        }
     };
 
-    const handleNicknameCheck = () => {
-
+    /*닉네임 중복확인 버튼*/
+    const handleNicknameCheck = async() => {
+        if(!nickname){
+            alert("이메일을 입력해주세요.");
+            return;
+        }
+        try{
+            const response = await axios.get(`/api/checkNickname`, {
+                params: {nickname},
+            });
+            alert(response.data);
+            setIsNicknameCheck(true);
+        }catch (error){
+            if(axios.isAxiosError(error)){
+                alert(error.response?.data);
+            }else{
+                alert("중복 확인 중 오류가 발생하였습니다.");
+            }
+            setIsNicknameCheck(false);
+        }
     };
 
     const handlePhoneVerification = () => {
@@ -114,6 +168,61 @@ const JoinForm: React.FC = () => {
     /*가입하기 버튼*/
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        //빈칸이 있을 경우
+        if(!email){
+            alert("아이디(이메일)을 입력해주세요.");
+            emailRef.current?.focus();
+            return;
+        }
+
+        if(!password){
+            alert("비밀번호를 입력해주세요.");
+            passwordRef.current?.focus();
+            return;
+        }
+
+        if(!confirmPassword){
+            alert("비밀번호 확인을 입력해주세요.");
+            confirmPasswordRef.current?.focus();
+            return;
+        }
+
+        if(!phone){
+            alert("휴대폰 번호를 입력해주세요.");
+            phoneRef.current?.focus();
+            return;
+        }
+
+        if(name){
+            alert("이름을 입력해주세요.");
+            nameRef.current?.focus();
+            return;
+        }
+
+        if(!birthDate){
+            alert("생년월일을 입력해주세요.");
+            birthDateRef.current?.focus();
+            return;
+        }
+
+        if(!nickname){
+            alert("닉네임을 입력해주세요.");
+            nicknameRef.current?.focus();
+            return;
+        }
+
+        //비밀번호와 비밀번호 확인이 다른 경우
+        if(password !== confirmPassword){
+            alert("비밀번호 확인이 일치하지 않습니다.");
+            return;
+        }
+
+        //'중복확인'을 하지 않은 경우
+        if(!isEmailCheck || !isNicknameCheck){
+            alert("아이디(이메일) 또는 닉네임 중복확인을 해주세요.");
+            return;
+        }
 
         //유효성 검사를 통과하지 못한 경우
         if(emailError || passwordError || confirmPasswordError || phoneError || nameError || birthDateError || nicknameError){

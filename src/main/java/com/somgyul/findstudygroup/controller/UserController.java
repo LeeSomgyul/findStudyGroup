@@ -15,6 +15,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    //회원가입
     @PostMapping("/userRegister")
     public ResponseEntity<String> registerUser(
             @RequestPart("data") UserRegisterRequest request,
@@ -28,5 +29,23 @@ public class UserController {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원가입 중 오류 발생");
         }
+    }
+
+    //이메일 중복 확인
+    @GetMapping("/checkEmail")
+    public ResponseEntity<String> checkEmail(@RequestParam String email) {
+        if(userService.isEmailDuplicate(email)){
+            return ResponseEntity.badRequest().body("이미 존재하는 아이디(이메일)입니다.");
+        }
+        return ResponseEntity.ok().body("사용 가능한 아이디(이메일)입니다.");
+    }
+
+    //닉네임 중복 확인
+    @GetMapping("/checkNickname")
+    public ResponseEntity<String> checkNickname(@RequestParam String nickname) {
+        if(userService.isNicknameDuplicate(nickname)){
+            return ResponseEntity.badRequest().body("이미 존재하는 닉네임입니다.");
+        }
+        return ResponseEntity.ok().body("사용 가능한 닉네임입니다.");
     }
 }

@@ -22,6 +22,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    //회원가입
     public void registerUser(UserRegisterRequest request, MultipartFile profileImage) {
         try {
             //중복확인
@@ -66,5 +67,15 @@ public class UserService {
         }catch (Exception e){
             throw new RuntimeException("회원가입 처리 중 오류 발생: ", e);
         }
+    }
+
+    //이메일 중복 확인
+    public boolean isEmailDuplicate(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    //닉네임 중복 확인
+    public boolean isNicknameDuplicate(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 }
