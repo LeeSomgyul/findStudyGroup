@@ -1,5 +1,7 @@
 package com.somgyul.findstudygroup.service;
 
+import com.somgyul.findstudygroup.dto.UserLoginRequest;
+import com.somgyul.findstudygroup.dto.UserLoginResponse;
 import com.somgyul.findstudygroup.dto.UserRegisterRequest;
 import com.somgyul.findstudygroup.entity.User;
 import com.somgyul.findstudygroup.repository.UserRepository;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -22,7 +25,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    //회원가입
+    /*회원가입*/
     public void registerUser(UserRegisterRequest request, MultipartFile profileImage) {
         try {
             //중복확인
@@ -69,13 +72,25 @@ public class UserService {
         }
     }
 
-    //이메일 중복 확인
+    /*이메일 중복 확인*/
     public boolean isEmailDuplicate(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    //닉네임 중복 확인
+    /*닉네임 중복 확인*/
     public boolean isNicknameDuplicate(String nickname) {
         return userRepository.existsByNickname(nickname);
+    }
+
+    /*로그인*/
+    public UserLoginResponse LoginUser(UserLoginRequest request) {
+        Optional<User> userOptional = userRepository.findByemail(request.getEmail());
+
+        if(userOptional.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOptional.get().getPassword())) {
+            throw new IllegalArgumentException("아이디(이메일) 또는 비밀번호가 일치하지 않습니다.");
+        }
+        
+        User user = userOptional.get();
+        return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), user.getProfileImage());
     }
 }

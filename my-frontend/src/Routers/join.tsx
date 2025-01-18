@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, Link} from "react-router-dom";
+import { ReactComponent as Logo } from "../assets/logo.svg";
 
 const JoinForm: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -160,7 +161,7 @@ const JoinForm: React.FC = () => {
     };
 
     const handlePhoneVerification = () => {
-
+        //비용 발생으로 다음에 도전(naver cloud 또는 coolsms활용)
     };
 
     const navigate = useNavigate();
@@ -283,113 +284,117 @@ const JoinForm: React.FC = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <div>
+            <Link to="/">
+                <Logo/>
+            </Link>
             <h1>회원가입</h1>
+            <form onSubmit={handleSubmit}>
+                    <div>
+                        <label>아이디(이메일)</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onBlur={validateEmail}
+                        />
+                        <button type="button" onClick={handleEmailCheck}>
+                            중복확인
+                        </button>
+                        {emailError && <p>{emailError}</p>}
+                    </div>
 
-            <div>
-                <label>아이디(이메일)</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onBlur={validateEmail}
-                />
-                <button type="button" onClick={handleEmailCheck}>
-                    중복확인
-                </button>
-                {emailError && <p>{emailError}</p>}
+                    <div>
+                        <label>비밀번호</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onBlur={validatePassword}
+                        />
+                        {passwordError && <p>{passwordError}</p>}
+                    </div>
+
+                    <div>
+                        <label>비밀번호 확인</label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onBlur={validateConfirmPassword}
+                        />
+                        {confirmPasswordError && <p>{confirmPasswordError}</p>}
+                    </div>
+
+                    <div>
+                        <label>휴대폰</label>
+                        <input
+                            type="text"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            onBlur={validatePhone}
+                        />
+                        <button type="button" onClick={handlePhoneVerification}>
+                            인증하기
+                        </button>
+                        {phoneError && <p>{phoneError}</p>}
+                    </div>
+
+                    <div>
+                        <label>이름(실명)</label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            onBlur={validateName}
+                        />
+                        {nameError && <p>{nameError}</p>}
+                    </div>
+
+                    <div>
+                        <label>생년월일(8자리)</label>
+                        <input
+                            type="text"
+                            value={birthDate}
+                            onChange={(e) => setBirthDate(e.target.value)}
+                            onBlur={validateBirthDate}
+                        />
+                        {birthDateError && <p>{birthDateError}</p>}
+                    </div>
+
+                    <div>
+                        <label>닉네임</label>
+                        <input
+                            type="text"
+                            value={nickname}
+                            onChange={(e) => setNickname(e.target.value)}
+                            onBlur={validateNickname}
+                        />
+                        <button type="button" onClick={handleNicknameCheck}>
+                            중복확인
+                        </button>
+                        {nicknameError && <p>{nicknameError}</p>}
+                    </div>
+
+                    <div>
+                        <label>프로필</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                if(e.target.files) {
+                                    setProfileImage(e.target.files[0]);
+                                }
+                            }}
+                        />
+                    </div>
+
+                    <button type="submit">
+                        가입하기
+                    </button>
+
+                </form>
             </div>
-
-            <div>
-                <label>비밀번호</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onBlur={validatePassword}
-                />
-                {passwordError && <p>{passwordError}</p>}
-            </div>
-
-            <div>
-                <label>비밀번호 확인</label>
-                <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    onBlur={validateConfirmPassword}
-                />
-                {confirmPasswordError && <p>{confirmPasswordError}</p>}
-            </div>
-
-            <div>
-                <label>휴대폰</label>
-                <input
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    onBlur={validatePhone}
-                />
-                <button type="button" onClick={handlePhoneVerification}>
-                    인증하기
-                </button>
-                {phoneError && <p>{phoneError}</p>}
-            </div>
-
-            <div>
-                <label>이름(실명)</label>
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    onBlur={validateName}
-                />
-                {nameError && <p>{nameError}</p>}
-            </div>
-
-            <div>
-                <label>생년월일(8자리)</label>
-                <input
-                    type="text"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    onBlur={validateBirthDate}
-                />
-                {birthDateError && <p>{birthDateError}</p>}
-            </div>
-
-            <div>
-                <label>닉네임</label>
-                <input
-                    type="text"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    onBlur={validateNickname}
-                />
-                <button type="button" onClick={handleNicknameCheck}>
-                    중복확인
-                </button>
-                {nicknameError && <p>{nicknameError}</p>}
-            </div>
-
-            <div>
-                <label>프로필</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                        if(e.target.files) {
-                            setProfileImage(e.target.files[0]);
-                        }
-                    }}
-                />
-            </div>
-
-            <button type="submit">
-                가입하기
-            </button>
-
-        </form>
     );
 };
 
