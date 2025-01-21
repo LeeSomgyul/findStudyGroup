@@ -195,7 +195,7 @@ const JoinForm: React.FC = () => {
             return;
         }
 
-        if(name){
+        if(!name){
             alert("이름을 입력해주세요.");
             nameRef.current?.focus();
             return;
