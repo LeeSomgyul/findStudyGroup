@@ -12,7 +12,7 @@ public class UserLoginResponse {
     private String nickname;
     private String profileImage;
 
-    public UserLoginResponse(Long id, String email, String name, String nickname, String profileImage) {
+    public UserLoginResponse(Long id, String email, String name, String nickname, String profileImage, String token) {
         this.id = id;
         this.email = email;
         this.name = name;

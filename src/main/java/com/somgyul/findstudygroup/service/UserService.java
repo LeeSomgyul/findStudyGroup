@@ -5,6 +5,7 @@ import com.somgyul.findstudygroup.dto.UserLoginResponse;
 import com.somgyul.findstudygroup.dto.UserRegisterRequest;
 import com.somgyul.findstudygroup.entity.User;
 import com.somgyul.findstudygroup.repository.UserRepository;
+import com.somgyul.findstudygroup.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     /*회원가입*/
     public void registerUser(UserRegisterRequest request, MultipartFile profileImage) {
@@ -86,11 +90,15 @@ public class UserService {
     public UserLoginResponse LoginUser(UserLoginRequest request) {
         Optional<User> userOptional = userRepository.findByemail(request.getEmail());
 
+        //사용자 인증
         if(userOptional.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOptional.get().getPassword())) {
             throw new IllegalArgumentException("아이디(이메일) 또는 비밀번호가 일치하지 않습니다.");
         }
-        
+
+        //토큰 생성
         User user = userOptional.get();
-        return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), user.getProfileImage());
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), user.getProfileImage(), token);
     }
 }

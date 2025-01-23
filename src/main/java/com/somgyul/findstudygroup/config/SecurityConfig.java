@@ -1,5 +1,6 @@
 package com.somgyul.findstudygroup.config;
 
+import com.somgyul.findstudygroup.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,19 +17,17 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-    //보안 필터 체인 설정
+    //Spring Security의 전체 필터 체인 구성 관리
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
+        JwtUtil jwtUtil = new JwtUtil();
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 );
+        http.addFilter(new JwtAuthenticationFilter(jwtUtil));
         return http.build();
     }
-
-
 
 }
