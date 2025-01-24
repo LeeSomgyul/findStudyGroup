@@ -3,6 +3,7 @@ package com.somgyul.findstudygroup.controller;
 import com.somgyul.findstudygroup.dto.UserLoginRequest;
 import com.somgyul.findstudygroup.dto.UserLoginResponse;
 import com.somgyul.findstudygroup.dto.UserRegisterRequest;
+import com.somgyul.findstudygroup.entity.User;
 import com.somgyul.findstudygroup.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,9 +58,8 @@ public class UserController {
 
     //로그인
     @PostMapping("/login")
-    public UserLoginResponse login(@RequestBody UserLoginRequest request) {
-        User user = userService
-
-        return userService.LoginUser(request);
+    public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
+        UserLoginResponse response = userService.LoginUser(request);
+        return ResponseEntity.ok(response);
     }
 }
