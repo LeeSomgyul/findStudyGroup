@@ -2,16 +2,27 @@ import React, {useContext} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import { ReactComponent as Logo } from "../assets/logo.svg";
 import {AuthContext} from "../App";
+import axios from "axios";
 
 const Navbar: React.FC = () => {
-    const { isLoggedIn, profileImage, setAuth } = useContext(AuthContext);
+    const {auth, setAuth} = useContext(AuthContext);
+    const {isLoggedIn, profileImage} = auth;
 
     const navigate = useNavigate();
 
     const handleLogout = () => {
-      setAuth({isLoggedIn: false, profileImage: ""});
-      localStorage.removeItem("authToken");
-      navigate("/");
+        //로컬스토리지에 저장된 토큰 제거
+        localStorage.removeItem("token");
+        delete axios.defaults.headers.common["Authorization"];
+
+        //상태 초기화
+        setAuth({
+           isLoggedIn: false,
+           profileImage: "",
+           token: null,
+        });
+
+        navigate("/");
     };
 
     return(

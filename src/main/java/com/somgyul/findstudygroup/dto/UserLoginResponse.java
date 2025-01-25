@@ -11,6 +11,7 @@ public class UserLoginResponse {
     private String name;
     private String nickname;
     private String profileImage;
+    private String token;
 
     public UserLoginResponse(Long id, String email, String name, String nickname, String profileImage, String token) {
         this.id = id;
@@ -18,5 +19,6 @@ public class UserLoginResponse {
         this.name = name;
         this.nickname = nickname;
         this.profileImage = profileImage;
+        this.token = token;
     }
 }

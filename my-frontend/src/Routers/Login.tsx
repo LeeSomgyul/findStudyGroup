@@ -10,7 +10,7 @@ const Login:React.FC = () => {
     const [password, setPassword] = useState("");
     const [errormessage, setErrormessage] = useState("");
 
-    const {setAuth} = useContext(AuthContext);
+    const { auth ,setAuth} = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogin = async () => {
@@ -30,17 +30,19 @@ const Login:React.FC = () => {
                 password: password,
             });
 
+            //JWT 토큰을 로컬 스토리지에 저장
+            localStorage.setItem("token", response.data.token);
+            axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+
             //로그인 상태 업데이트(App.tsx)
             setAuth({
                 isLoggedIn: true,
                 profileImage: response.data.profileImage,
-            });
-            console.log("Auth updated:", {
-                isLoggedIn: true,
-                profileImage: response.data.profileImage,
+                token: response.data.token,
             });
 
             setErrormessage("");
+
             navigate("/");
         }catch (error:any){
             setErrormessage("아이디(이메일) 또는 비밀번호가 틀렸습니다.");
