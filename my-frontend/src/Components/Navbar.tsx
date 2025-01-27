@@ -8,6 +8,9 @@ const Navbar: React.FC = () => {
     const {auth, setAuth} = useContext(AuthContext);
     const {isLoggedIn, profileImage} = auth;
 
+    console.log(auth);
+    console.log(profileImage);
+
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -42,7 +45,7 @@ const Navbar: React.FC = () => {
                 {isLoggedIn ? (
                     <>
                         <img
-                            src={profileImage}
+                            src={`http://localhost:8080${profileImage}`}
                             alt="Profile"
                             style={{ width: "40px", height: "40px", borderRadius: "50%" }}//예비설정
                         />
