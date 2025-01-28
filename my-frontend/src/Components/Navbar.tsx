@@ -8,14 +8,12 @@ const Navbar: React.FC = () => {
     const {auth, setAuth} = useContext(AuthContext);
     const {isLoggedIn, profileImage} = auth;
 
-    console.log(auth);
-    console.log(profileImage);
-
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        //로컬스토리지에 저장된 토큰 제거
+        //로컬스토리지에 로그아웃한 사용자 토큰 및 프로필이미지 삭제
         localStorage.removeItem("token");
+        localStorage.removeItem("profileImage")
         delete axios.defaults.headers.common["Authorization"];
 
         //상태 초기화

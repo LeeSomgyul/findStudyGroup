@@ -4,7 +4,6 @@ import {Outlet} from "react-router-dom";
 import Navbar from "./Components/Navbar";
 
 /*로그인 상태 여부*/
-//인터페이스: 인증 데이터 타입 정의
 interface AuthState {
     isLoggedIn: boolean;
     profileImage: string;
@@ -34,10 +33,12 @@ function App(){
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if(token){
+        const profileImage = localStorage.getItem("profileImage");
+
+        if(token && profileImage){
           setAuth({
               isLoggedIn: true,
-              profileImage: "",
+              profileImage,
               token,
           });
         }
