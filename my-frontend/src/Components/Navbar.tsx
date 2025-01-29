@@ -34,10 +34,7 @@ const Navbar: React.FC = () => {
                 </Link>
             </div>
             <div>
-                <Link to="/find-study">스터디 찾기</Link>
-                <Link to="/my-space">나의 학습 공간</Link>
-                <Link to="/community">커뮤니티</Link>
-                <Link to="/event">이벤트</Link>
+                <Link to="/daily-calendar">캘린더</Link>
             </div>
             <div>
                 {isLoggedIn ? (

@@ -2,10 +2,7 @@ import { createBrowserRouter }from "react-router-dom";
 
 import App from "./App";
 import Home from "./Routers/Home";
-import FindStudy from "./Routers/FindStudy";
-import MySpace from "./Routers/MySpace";
-import Community from "./Routers/Community";
-import Event from "./Routers/Event";
+import DailyCalendar from "./Routers/DailyCalendar";
 import Login from "./Routers/Login";
 import Join from "./Routers/join";
 
@@ -15,10 +12,7 @@ const router = createBrowserRouter([
         element: <App/>,
         children: [
             {path: "", element: <Home/>},
-            {path: "find-study", element: <FindStudy/>},
-            {path: "my-space", element: <MySpace/>},
-            {path: "community", element: <Community/>},
-            {path: "event", element: <Event/>},
+            {path: "daily-calendar", element: <DailyCalendar/>},
         ],
     },
     //Navbar 없는 페이지

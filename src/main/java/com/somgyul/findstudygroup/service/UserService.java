@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -95,10 +96,18 @@ public class UserService {
             throw new IllegalArgumentException("아이디(이메일) 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        //토큰 생성
+        //사용자 정보 가져오기
         User user = userOptional.get();
+
+        //기본 프로필 설정
+        String profileImage = user.getProfileImage();
+        if(profileImage == null || profileImage.isEmpty()) {
+            profileImage = "/uploads/기본프로필.jpg";
+        }
+
+        //토큰 생성
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), user.getProfileImage(), token);
+        return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), profileImage, token);
     }
 }

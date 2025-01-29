@@ -123,7 +123,7 @@ const JoinForm: React.FC = () => {
             return;
         }
         try{
-            const response = await axios.get(`/api/checkEmail`, {
+            const response = await axios.get(`/api/user/checkEmail`, {
                 params: {email},
             });
             alert(response.data);
@@ -145,7 +145,7 @@ const JoinForm: React.FC = () => {
             return;
         }
         try{
-            const response = await axios.get(`/api/checkNickname`, {
+            const response = await axios.get(`/api/user/checkNickname`, {
                 params: {nickname},
             });
             alert(response.data);
@@ -241,7 +241,7 @@ const JoinForm: React.FC = () => {
         }
 
         try{
-            const response = await axios.post("/api/userRegister", formData, {
+            const response = await axios.post("/api/user/userRegister", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
