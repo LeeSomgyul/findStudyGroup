@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class GoalService {
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
 
-    /*목표 추가 기능*/
+    /*✅ 목표 추가 기능*/
     public Goal createGoal(GoalDto goalDto) {
 
         //목표 등록하려는 사용자가 누군지 찾기
@@ -34,6 +35,21 @@ public class GoalService {
         goal.setImageUrl(goalDto.getImageUrl());
 
         //사용자가 입력한 목표를 DB에 저장
+        return goalRepository.save(goal);
+    }
+
+    /*✅ 특정 날짜의 목표 가져오기*/
+    public List<Goal> getGoalsByDate(Long userId, String date) {
+        return goalRepository.findByUserIdAndDate(userId, LocalDate.parse(date));
+    }
+
+    /*✅ 목표 달성 상태 바꾸기(달성, 미달성)*/
+    public Goal updateGoalStatus(Long id, boolean isCompleted) {
+        Goal goal = goalRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 목표 id에 맞는 목표를 찾지 못하였습니다."));
+
+        goal.setCompleted(isCompleted);
         return goalRepository.save(goal);
     }
 }

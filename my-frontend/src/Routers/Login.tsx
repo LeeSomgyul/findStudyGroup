@@ -30,11 +30,8 @@ const Login:React.FC = () => {
                 password: password,
             });
 
-            //JWT 토큰을 로컬 스토리지에 저장
-            //localStorage.setItem("token", response.data.token);
-            //axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
-
-            const {token, profileImage} = response.data;
+            const {id, token, profileImage} = response.data;
+            localStorage.setItem("userId", id);
             localStorage.setItem("token", token);
             localStorage.setItem("profileImage", profileImage);
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -42,6 +39,7 @@ const Login:React.FC = () => {
             //로그인 상태 업데이트(App.tsx)
             setAuth({
                 isLoggedIn: true,
+                userId: id,
                 profileImage,
                 token,
             });

@@ -6,6 +6,7 @@ import Navbar from "./Components/Navbar";
 /*로그인 상태 여부*/
 interface AuthState {
     isLoggedIn: boolean;
+    userId: number | null;
     profileImage: string;
     token: string | null;
 }
@@ -17,6 +18,7 @@ export const AuthContext = createContext<{
 }>({
     auth: {
         isLoggedIn: false,
+        userId: null,
         profileImage: "",
         token: null,
     },
@@ -27,17 +29,20 @@ export const AuthContext = createContext<{
 function App(){
     const [auth, setAuth] = useState<AuthState>({
         isLoggedIn: false,
+        userId: null,
         profileImage: "",
         token: null,
     });
 
     useEffect(() => {
+        const id = localStorage.getItem("userId");
         const token = localStorage.getItem("token");
         const profileImage = localStorage.getItem("profileImage");
 
-        if(token && profileImage){
+        if( id && token && profileImage){
           setAuth({
               isLoggedIn: true,
+              userId: Number(id),
               profileImage,
               token,
           });
