@@ -31,7 +31,7 @@ public class GoalController {
     }
 
     /*✅ 목표 달성 상태 바꾸기(달성, 미달성)*/
-    @PostMapping("/{id}")//URL 에서 해당 목표 id를 가져옴
+    @PutMapping("/{id}")//URL 에서 해당 목표 id를 가져옴
     public ResponseEntity<Goal> updateGoalStatus (@PathVariable Long id, @RequestBody GoalDto goalDto) {
         Goal updatedGoal = goalService.updateGoalStatus(id, goalDto.isCompleted());
         return ResponseEntity.ok(updatedGoal);

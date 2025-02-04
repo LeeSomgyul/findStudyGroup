@@ -12,15 +12,17 @@ const Navbar: React.FC = () => {
 
     const handleLogout = () => {
         //로컬스토리지에 로그아웃한 사용자 토큰 및 프로필이미지 삭제
+        localStorage.removeItem("userId");
+        localStorage.removeItem("profileImage");
         localStorage.removeItem("token");
-        localStorage.removeItem("profileImage")
         delete axios.defaults.headers.common["Authorization"];
 
         //상태 초기화
         setAuth({
-           isLoggedIn: false,
-           profileImage: "",
-           token: null,
+            isLoggedIn: false,
+            userId: null,
+            profileImage: "",
+            token: null,
         });
 
         navigate("/");
