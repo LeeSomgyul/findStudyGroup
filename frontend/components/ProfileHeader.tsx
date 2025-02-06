@@ -3,10 +3,21 @@ import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { AuthContext } from "../app/authContext";
+import { useNavigation } from "@react-navigation/native";
+import {StackNavigationProp} from "@react-navigation/stack";
+
+type RootStackParamList = {
+    Main: undefined;
+    Login: undefined;
+    Join: undefined;
+}
 
 const ProfileHeader: React.FC = () => {
     const { auth, setAuth } = useContext(AuthContext);
     const { isLoggedIn, profileImage } = auth;
+
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const API_BASE_URL = "http://192.168.x.x:8080";
 
     const handleLogout = async () => {
         try {
@@ -33,17 +44,20 @@ const ProfileHeader: React.FC = () => {
         <View>
             {isLoggedIn ? (
                 <View>
-                    <Image source={{ uri: `http://localhost:8080${profileImage}` }} />
+                    <Image
+                        source={{ uri: profileImage ? `${API_BASE_URL}${profileImage}` : `${API_BASE_URL}/uploads/기본프로필.jpg`}}
+                        style={{ width: 50, height: 50, borderRadius: 25 }}
+                    />
                     <TouchableOpacity onPress={handleLogout}>
                         <Text>로그아웃</Text>
                     </TouchableOpacity>
                 </View>
             ) : (
                 <View>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                         <Text>로그인</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("Join")}>
                         <Text>회원가입</Text>
                     </TouchableOpacity>
                 </View>

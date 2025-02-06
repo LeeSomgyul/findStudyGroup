@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry){
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:///C:/Users/rmawl/Desktop/findStudyGroup/uploads/");//실제 업로드된 파일 경로
+                .addResourceLocations("file:uploads/");//실제 업로드된 파일 경로
     }
 
     /*CORS 설정*/

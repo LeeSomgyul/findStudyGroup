@@ -30,7 +30,7 @@ export default function Router() {
     const { auth } = useContext(AuthContext);
 
     return (
-            <Stack.Navigator initialRouteName={auth.isLoggedIn ? "Main" : "Login"} screenOptions={{ headerShown: false }}>
+            <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
                 {/* 메인 화면 (BottomTabNavigator 포함) */}
                 <Stack.Screen name="Main" component={BottomTabNavigator} />
 

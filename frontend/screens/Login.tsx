@@ -5,10 +5,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AuthContext } from "../app/authContext";
+import globalStyles from "../styles/ globalStyles";
+import {loginUserApi} from "../constants/api";
 
 // ✅ 네비게이션 타입 정의
 type RootStackParamList = {
-    Home: undefined;
+    Main: undefined;
 };
 
 const Login: React.FC = () => {
@@ -31,12 +33,9 @@ const Login: React.FC = () => {
         }
 
         try {
-            const response = await axios.post("/api/user/login", {
-                email,
-                password,
-            });
-
+            const response = await loginUserApi(email, password);
             const { id, token, profileImage } = response.data;
+
             await AsyncStorage.setItem("userId", id.toString());
             await AsyncStorage.setItem("token", token);
             await AsyncStorage.setItem("profileImage", profileImage);
@@ -52,29 +51,31 @@ const Login: React.FC = () => {
 
             setErrormessage("");
             Alert.alert("로그인 성공", "홈 화면으로 이동합니다.");
-            navigation.navigate("Home");
+            navigation.navigate("Main");
         } catch (error: any) {
             setErrormessage("아이디(이메일) 또는 비밀번호가 틀렸습니다.");
         }
     };
 
     return (
-        <View>
-            <Text>로그인</Text>
+        <View style={globalStyles.container}>
+            <Text style={globalStyles.title}>로그인</Text>
             <TextInput
+                style={globalStyles.input}
                 placeholder="이메일"
                 value={email}
                 onChangeText={setEmail}
             />
             <TextInput
+                style={globalStyles.input}
                 placeholder="비밀번호"
                 value={password}
                 secureTextEntry
                 onChangeText={setPassword}
             />
             {errormessage ? <Text>{errormessage}</Text> : null}
-            <TouchableOpacity onPress={handleLogin}>
-                <Text>로그인</Text>
+            <TouchableOpacity onPress={handleLogin} style={globalStyles.button}>
+                <Text  style={globalStyles.buttonText}>로그인</Text>
             </TouchableOpacity>
         </View>
     );

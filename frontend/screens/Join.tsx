@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import globalStyles from "../styles/ globalStyles";
+import goalList from "@/components/GoalList";
 
 // ✅ 네비게이션 스택 타입 정의
 type RootStackParamList = {
@@ -82,20 +84,20 @@ const JoinForm: React.FC = () => {
     };
 
     return (
-        <View>
-            <Text>회원가입</Text>
-            <TextInput placeholder="이메일" value={email} onChangeText={setEmail} />
-            <TouchableOpacity onPress={handleEmailCheck}>
-                <Text>중복확인</Text>
+        <View style={globalStyles.container}>
+            <Text style={globalStyles.title}>회원가입</Text>
+            <TextInput placeholder="이메일" value={email} onChangeText={setEmail} style={globalStyles.input}/>
+            <TouchableOpacity onPress={handleEmailCheck} style={globalStyles.button}>
+                <Text style={globalStyles.buttonText}>중복확인</Text>
             </TouchableOpacity>
-            <TextInput placeholder="비밀번호" value={password} secureTextEntry onChangeText={setPassword} />
-            <TextInput placeholder="비밀번호 확인" value={confirmPassword} secureTextEntry onChangeText={setConfirmPassword} />
-            <TextInput placeholder="휴대폰" value={phone} onChangeText={setPhone} />
-            <TextInput placeholder="이름(실명)" value={name} onChangeText={setName} />
-            <TextInput placeholder="생년월일(8자리)" value={birthDate} onChangeText={setBirthDate} />
-            <TextInput placeholder="닉네임" value={nickname} onChangeText={setNickname} />
-            <TouchableOpacity onPress={handleSubmit}>
-                <Text>가입하기</Text>
+            <TextInput placeholder="비밀번호" value={password} secureTextEntry onChangeText={setPassword} style={globalStyles.input}/>
+            <TextInput placeholder="비밀번호 확인" value={confirmPassword} secureTextEntry onChangeText={setConfirmPassword} style={globalStyles.input}/>
+            <TextInput placeholder="휴대폰" value={phone} onChangeText={setPhone} style={globalStyles.input}/>
+            <TextInput placeholder="이름(실명)" value={name} onChangeText={setName} style={globalStyles.input}/>
+            <TextInput placeholder="생년월일(8자리)" value={birthDate} onChangeText={setBirthDate} style={globalStyles.input}/>
+            <TextInput placeholder="닉네임" value={nickname} onChangeText={setNickname} style={globalStyles.input}/>
+            <TouchableOpacity onPress={handleSubmit} style={globalStyles.button}>
+                <Text style={globalStyles.buttonText}>가입하기</Text>
             </TouchableOpacity>
         </View>
     );
