@@ -101,8 +101,12 @@ public class UserService {
 
         //기본 프로필 설정
         String profileImage = user.getProfileImage();
+        String API_BASE_URL = "http://192.168.45.24:8080";
+
         if(profileImage == null || profileImage.isEmpty()) {
-            profileImage = "/uploads/기본프로필.jpg";
+            profileImage = API_BASE_URL + "/uploads/기본프로필.jpg";
+        }else{
+            profileImage = API_BASE_URL + profileImage;
         }
 
         //토큰 생성

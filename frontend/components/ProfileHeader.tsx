@@ -17,7 +17,9 @@ const ProfileHeader: React.FC = () => {
     const { isLoggedIn, profileImage } = auth;
 
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    const API_BASE_URL = "http://192.168.x.x:8080";
+    const API_BASE_URL = "http://192.168.45.24:8080";
+
+    console.log("🔥 로그인 후 프로필 이미지:", profileImage);
 
     const handleLogout = async () => {
         try {
@@ -45,7 +47,7 @@ const ProfileHeader: React.FC = () => {
             {isLoggedIn ? (
                 <View>
                     <Image
-                        source={{ uri: profileImage ? `${API_BASE_URL}${profileImage}` : `${API_BASE_URL}/uploads/기본프로필.jpg`}}
+                        source={{ uri: profileImage }}
                         style={{ width: 50, height: 50, borderRadius: 25 }}
                     />
                     <TouchableOpacity onPress={handleLogout}>
