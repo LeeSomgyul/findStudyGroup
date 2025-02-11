@@ -5,6 +5,7 @@ import axios from "axios";
 import { AuthContext } from "../app/authContext";
 import { useNavigation } from "@react-navigation/native";
 import {StackNavigationProp} from "@react-navigation/stack";
+import Constants from 'expo-constants';
 
 type RootStackParamList = {
     Main: undefined;
@@ -12,14 +13,13 @@ type RootStackParamList = {
     Join: undefined;
 }
 
+const API_BASE_URL = Constants.expoConfig?.extra?.API_BASE_URL;
+
 const ProfileHeader: React.FC = () => {
     const { auth, setAuth } = useContext(AuthContext);
     const { isLoggedIn, profileImage } = auth;
 
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    const API_BASE_URL = "http://192.168.45.24:8080";
-
-    console.log("🔥 로그인 후 프로필 이미지:", profileImage);
 
     const handleLogout = async () => {
         try {
@@ -42,12 +42,16 @@ const ProfileHeader: React.FC = () => {
         }
     };
 
+    const fullProfileImage = profileImage.startsWith("http")
+        ? profileImage
+        : `${API_BASE_URL}${profileImage}`;
+
     return (
         <View>
             {isLoggedIn ? (
                 <View>
                     <Image
-                        source={{ uri: profileImage }}
+                        source={{ uri: fullProfileImage }}
                         style={{ width: 50, height: 50, borderRadius: 25 }}
                     />
                     <TouchableOpacity onPress={handleLogout}>

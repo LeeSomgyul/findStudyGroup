@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import globalStyles from "../styles/ globalStyles";
 import goalList from "@/components/GoalList";
+import {checkEmailApi} from "@/constants/api";
 
 // ✅ 네비게이션 스택 타입 정의
 type RootStackParamList = {
@@ -33,12 +34,11 @@ const JoinForm: React.FC = () => {
             return;
         }
         try {
-            const response = await axios.get(`/api/user/checkEmail`, {
-                params: { email },
-            });
+            const response = await checkEmailApi(email);
             Alert.alert(response.data);
             setIsEmailCheck(true);
-        } catch (error) {
+        } catch (error: any) {
+            console.log("에러 발생:", error.response?.data || error.message);
             Alert.alert("중복 확인 중 오류가 발생하였습니다.");
             setIsEmailCheck(false);
         }
