@@ -5,14 +5,19 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Paths;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    /*프로필사진 upload폴더 관련*/
+    /*업로드된 이미지 파일을 정적 소스로 제공*/
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry){
+        String uploadPath = Paths.get("uploads").toAbsolutePath().toUri().toString();
+
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");//실제 업로드된 파일 경로
+                .addResourceLocations(uploadPath)
+                .setCachePeriod(3600);
     }
 
     /*CORS 설정*/
@@ -32,4 +37,5 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
+
 }

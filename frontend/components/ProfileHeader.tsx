@@ -19,6 +19,8 @@ const ProfileHeader: React.FC = () => {
     const { auth, setAuth } = useContext(AuthContext);
     const { isLoggedIn, profileImage } = auth;
 
+    console.log(profileImage);
+
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
     const handleLogout = async () => {
@@ -44,7 +46,7 @@ const ProfileHeader: React.FC = () => {
 
     const fullProfileImage = profileImage.startsWith("http")
         ? profileImage
-        : `${API_BASE_URL}${profileImage}`;
+        : `${API_BASE_URL.replace('/api', '')}${profileImage}`;
 
     return (
         <View>
