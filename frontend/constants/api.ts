@@ -17,10 +17,20 @@ export const loginUserApi = async (email: string, password: string)=>{
 
 //✅ 회원가입 중복확인(아이디(이메일))
 export const checkEmailApi = async (email: string)=>{
-    return api.get("/api/user/checkEmail", {params: {email} });
+    return api.get("/user/checkEmail", {params: {email} });
 }
 
 //✅ 회원가입 중복확인(닉네임)
 export const checkNicknameApi = async (nickname: string) => {
-    return api.get("/api/user/checkNickname", {params: {nickname} });
+    return api.get("/user/checkNickname", {params: {nickname} });
+}
+
+//✅ 회원가입
+export const joinApi = async (userData: any, prifileImage?: File | null)=>{
+    const formDate = new FormData();
+
+    formDate.append(
+        "data",
+        new Blob([JSON.stringify()])
+    );
 }

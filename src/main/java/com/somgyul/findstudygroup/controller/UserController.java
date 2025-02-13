@@ -41,7 +41,6 @@ public class UserController {
     //이메일 중복 확인
     @GetMapping("/checkEmail")
     public ResponseEntity<String> checkEmail(@RequestParam String email) {
-        System.out.println("이메일 중복 확인 요청: " + email);
         if(userService.isEmailDuplicate(email)){
             return ResponseEntity.badRequest().body("이미 존재하는 아이디(이메일)입니다.");
         }
