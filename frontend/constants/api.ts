@@ -26,11 +26,21 @@ export const checkNicknameApi = async (nickname: string) => {
 }
 
 //✅ 회원가입
-export const joinApi = async (userData: any, prifileImage?: File | null)=>{
-    const formDate = new FormData();
+export const joinApi = async (userData: any, profileImage?: File | null)=>{
+    const formData = new FormData();
 
-    formDate.append(
+    // JSON 데이터를 Blob(이미지, 파일 다룸)으로 변환하여 FormData에 추가
+    formData.append(
         "data",
-        new Blob([JSON.stringify()])
+        new Blob([JSON.stringify(userData)], {type: "application/json"})
     );
+
+    //프로필 이미지가 있을 경우 formData에 추가
+    if(profileImage){
+        formData.append("profileImage", profileImage);
+    }
+
+    return api.post("/user/userRegister", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
 }

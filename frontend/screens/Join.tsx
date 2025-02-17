@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import globalStyles from "../styles/ globalStyles";
 import goalList from "@/components/GoalList";
-import {checkEmailApi, checkNicknameApi} from "@/constants/api";
+import {checkEmailApi, checkNicknameApi, joinApi} from "@/constants/api";
+import {string} from "prop-types";
 
 // ✅ 네비게이션 스택 타입 정의
 type RootStackParamList = {
@@ -23,6 +25,7 @@ const JoinForm: React.FC = () => {
     const [birthDate, setBirthDate] = useState("");
     const [nickname, setNickname] = useState("");
     const [profileImage, setProfileImage] = useState<File | null>(null);
+    const [profileImageUri, setProfileImageUri] = useState<string | null>(null);//프로필 미리보기 이미지
 
     //중복검사 상태
     const [isEmailCheck, setIsEmailCheck] = useState(false);
@@ -40,7 +43,6 @@ const JoinForm: React.FC = () => {
     const [nicknameSuccess, setNicknameSuccess] = useState("");
     const [profileImageError, setProfileImageError] = useState("");
 
-
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
     /*유효성 검사 규칙*/
@@ -51,9 +53,10 @@ const JoinForm: React.FC = () => {
     const birthDateRegex = /^\d{8}$/; // 숫자 8자리만 가능
     const nicknameRegex = /^[가-힣a-zA-Z]{2,7}$/; // 한글 및 영문자 2~7글자
 
+
     /*유효성검사 함수*/
     const validateInputs = () => {
-        let valid = false;
+        let valid = true;
 
         if(!email.trim() || !emailRegex.test(email)){
             setEmailError("이메일 형식으로 입력해주세요.");
@@ -100,6 +103,31 @@ const JoinForm: React.FC = () => {
         return valid;
     }
 
+    /*프로필 이미지 함수*/
+    const pickImage = async () => {
+        //📌갤러리 접근 권한 요청
+        const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if(status !== "granted"){
+            Alert.alert("권한 필요", "프로필 사진을 등록하려면 갤러리 접근 권한이 필요합니다.");
+            return;
+        }
+
+        // 📌 사용자 갤러리에서 이미지 선택
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,//이미지 편집 기능 활성화
+            aspect: [1, 1],//1:1 비율로 자르기
+            quality: 1,//이미지 품질(1=최상)
+            selectionLimit: 1,//1개 이미지만 선택할 수 있도록 설정
+        });
+
+        //📌 이미지 선택이 취소되지 않은 경우
+        if(!result.canceled){
+            const selectedImage = result.assets[0];//0번째 값이 uri임
+            setProfileImageUri(selectedImage.uri);
+        }
+
+    };
+
     /* 아이디(이메일) 중복확인 버튼 */
     const handleEmailCheck = async () => {
         if (!email.trim()) {
@@ -120,8 +148,7 @@ const JoinForm: React.FC = () => {
             setEmailSuccess(response.data);
             setIsEmailCheck(true);
         } catch (error: any) {
-            console.log("아이디 중복검사 에러 발생:", error.response?.data || error.message);
-            setEmailError("중복확인 중 오류가 발생하였습니다.");
+            setEmailError(error.response?.data);
             setEmailSuccess("");
             setIsEmailCheck(false);
         }
@@ -147,8 +174,7 @@ const JoinForm: React.FC = () => {
             setNicknameSuccess(response.data);
             setIsNicknameCheck(true);
         }catch (error:any){
-            console.log("이메일 중복검사 에러 발생: ", error.response?.data || error.message);
-            setNicknameError("중복확인 중 오류가 발생하였습니다.");
+            setNicknameError(error.response?.data);
             setNicknameSuccess("");
             setIsNicknameCheck(false);
         }
@@ -177,17 +203,11 @@ const JoinForm: React.FC = () => {
         }
 
         try {
-            const formData = new FormData();
-            formData.append("data", new Blob([JSON.stringify({
+            const userData = {
                 email, password, phone, name, birthDate, nickname,
-            })], { type: "application/json" }));
-            if (profileImage) {
-                formData.append("profileImage", profileImage);
-            }
+            };
 
-            const response = await axios.post("/api/user/userRegister", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
+            const response = await joinApi(userData, profileImage);
 
             if (response.status === 201) {
                 Alert.alert("회원가입이 완료되었습니다.");
@@ -210,6 +230,7 @@ const JoinForm: React.FC = () => {
                     setEmail(text);
                     setEmailError("");
                     setEmailSuccess("");
+                    setIsEmailCheck(false);
                 }}
                 style={globalStyles.input}
             />
@@ -218,21 +239,56 @@ const JoinForm: React.FC = () => {
             <TouchableOpacity onPress={handleEmailCheck} style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>중복확인</Text>
             </TouchableOpacity>
-            <TextInput placeholder="비밀번호" value={password} secureTextEntry onChangeText={setPassword} style={globalStyles.input}/>
+            <TextInput
+                placeholder="비밀번호"
+                value={password}
+                secureTextEntry
+                onChangeText={(text)=> {setPassword(text); setPasswordError("");}}
+                style={globalStyles.input}
+            />
             {passwordError ? <Text>{passwordError}</Text> : null}
-            <TextInput placeholder="비밀번호 확인" value={confirmPassword} secureTextEntry onChangeText={setConfirmPassword} style={globalStyles.input}/>
+            <TextInput
+                placeholder="비밀번호 확인"
+                value={confirmPassword}
+                secureTextEntry
+                onChangeText={(text) => {setConfirmPassword(text); setConfirmPasswordError("");}}
+                style={globalStyles.input}
+            />
             {confirmPasswordError ? <Text>{confirmPasswordError}</Text> : null}
-            <TextInput placeholder="휴대폰" value={phone} onChangeText={setPhone} style={globalStyles.input}/>
+            <TextInput
+                placeholder="휴대폰"
+                value={phone}
+                onChangeText={(text) => {setPhone(text); setPhoneError("");}}
+                style={globalStyles.input}
+            />
             {phoneError ? <Text>{phoneError}</Text> : null}
-            <TextInput placeholder="이름(실명)" value={name} onChangeText={setName} style={globalStyles.input}/>
+            <TextInput
+                placeholder="이름(실명)"
+                value={name}
+                onChangeText={(text) => {setName(text); setNameError("");}}
+                style={globalStyles.input}
+            />
             {nameError ? <Text>{nameError}</Text> : null}
-            <TextInput placeholder="생년월일(8자리)" value={birthDate} onChangeText={setBirthDate} style={globalStyles.input}/>
+            <TextInput
+                placeholder="생년월일(8자리)"
+                value={birthDate}
+                onChangeText={(text) => {setBirthDate(text); setBirthDateError("");}}
+                style={globalStyles.input}
+            />
             {birthDateError ? <Text>{birthDateError}</Text> : null}
-            <TextInput placeholder="닉네임" value={nickname} onChangeText={setNickname} style={globalStyles.input}/>
+            <TextInput
+                placeholder="닉네임"
+                value={nickname}
+                onChangeText={(text) => {setNickname(text); setNicknameError(""); setIsNicknameCheck(false);}}
+                style={globalStyles.input}
+            />
             {nicknameError ? <Text>{nicknameError}</Text> : null}
             {nicknameSuccess ? <Text>{nicknameSuccess}</Text> : null}
             <TouchableOpacity onPress={handleNicknameCheck} style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>중복확인</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={pickImage}>
+                <Text>프로필 이미지 선택</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleSubmit} style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>가입하기</Text>
