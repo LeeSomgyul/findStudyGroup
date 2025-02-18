@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import {View, Text, TextInput, TouchableOpacity, Alert, Image} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
@@ -103,6 +103,8 @@ const JoinForm: React.FC = () => {
         return valid;
     }
 
+    const DEFAULT_PROFILE_IMAGE = require("../assets/images/default_profile.jpg");
+
     /*프로필 이미지 함수*/
     const pickImage = async () => {
         //📌갤러리 접근 권한 요청
@@ -124,6 +126,15 @@ const JoinForm: React.FC = () => {
         if(!result.canceled){
             const selectedImage = result.assets[0];//0번째 값이 uri임
             setProfileImageUri(selectedImage.uri);
+
+            //서버로 보낼 수 있도록 파일 객체 생성(리엑트 네이티브는 파일 객체를 직접 만들어야한다.)
+            const file = {
+                uri: selectedImage.uri,
+                name: `profile_${Date.now()}.jpg`,
+                type: selectedImage.mimeType || "image/jpeg",
+            } as unknown as File;
+
+            setProfileImage(file);
         }
 
     };
@@ -290,6 +301,11 @@ const JoinForm: React.FC = () => {
             <TouchableOpacity onPress={pickImage}>
                 <Text>프로필 이미지 선택</Text>
             </TouchableOpacity>
+            <Image
+                source={profileImageUri ? {uri: profileImageUri} : DEFAULT_PROFILE_IMAGE}
+                style={{ width: 100, height: 100, borderRadius: 50, marginTop: 10 }}
+            />
+            {profileImageError ? <Text>{profileImageError}</Text> : null}
             <TouchableOpacity onPress={handleSubmit} style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>가입하기</Text>
             </TouchableOpacity>
