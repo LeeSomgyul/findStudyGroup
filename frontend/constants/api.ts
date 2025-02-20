@@ -1,5 +1,13 @@
 import axios from "axios";
 import Constants from 'expo-constants';
+import { Platform } from "react-native";
+
+//타입 정리
+type ImageFile = {
+  uri: string;
+  name: string;
+  type: string;
+};
 
 const API_BASE_URL = Constants.expoConfig?.extra?.API_BASE_URL;
 
@@ -26,7 +34,7 @@ export const checkNicknameApi = async (nickname: string) => {
 }
 
 //✅ 회원가입
-export const joinApi = async (userData: any, profileImage?: File | null)=>{
+export const joinApi = async (userData: any, profileImage?: ImageFile | null)=>{
     const formData = new FormData();
 
     // JSON 데이터를 Blob(이미지, 파일 다룸)으로 변환하여 FormData에 추가
@@ -37,7 +45,11 @@ export const joinApi = async (userData: any, profileImage?: File | null)=>{
 
     //프로필 이미지가 있을 경우 formData에 추가
     if(profileImage){
-        formData.append("profileImage", profileImage);
+        formData.append("profileImage", {
+            uri:  Platform.OS === "web" ? profileImage.uri : profileImage.uri.replace("file://", ""),
+            name: profileImage.name,
+            type: profileImage.type,
+        }as any);
     }
 
     return api.post("/user/userRegister", formData, {

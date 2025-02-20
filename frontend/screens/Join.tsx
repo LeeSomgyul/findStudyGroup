@@ -1,18 +1,25 @@
-import React, { useState, useEffect, useRef } from "react";
-import {View, Text, TextInput, TouchableOpacity, Alert, Image} from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
+import React, { useState, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { Platform } from "react-native";
+import {View, Text, TextInput, TouchableOpacity, Alert, Image} from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import globalStyles from "../styles/ globalStyles";
-import goalList from "@/components/GoalList";
 import {checkEmailApi, checkNicknameApi, joinApi} from "@/constants/api";
-import {string} from "prop-types";
+
 
 // ✅ 네비게이션 스택 타입 정의
 type RootStackParamList = {
     Login: undefined;
     // 필요한 다른 스크린이 있다면 추가 가능
+};
+
+// ✅ 프로필 이미지 타입 정의
+type ImageFile = {
+    uri: string;
+    name: string;
+    type: string;
+    size?: number;
 };
 
 const JoinForm: React.FC = () => {
@@ -24,8 +31,9 @@ const JoinForm: React.FC = () => {
     const [name, setName] = useState("");
     const [birthDate, setBirthDate] = useState("");
     const [nickname, setNickname] = useState("");
-    const [profileImage, setProfileImage] = useState<File | null>(null);
+    const [profileImage, setProfileImage] = useState<ImageFile | null>(null);
     const [profileImageUri, setProfileImageUri] = useState<string | null>(null);//프로필 미리보기 이미지
+    const profileImageRef = useRef<string | null>(null);//useRef로 새로고침 시 초기화 방지
 
     //중복검사 상태
     const [isEmailCheck, setIsEmailCheck] = useState(false);
@@ -95,7 +103,7 @@ const JoinForm: React.FC = () => {
             valid = false;
         }
 
-        if (profileImage && profileImage.size > 5 * 1024 * 1024) {
+        if (profileImage && profileImage.size && profileImage.size > 5 * 1024 * 1024) {
             setProfileImageError("프로필 사진은 5MB 이하만 가능합니다.");
             valid = false;
         }
@@ -103,12 +111,14 @@ const JoinForm: React.FC = () => {
         return valid;
     }
 
-    const DEFAULT_PROFILE_IMAGE = require("../assets/images/default_profile.jpg");
+    const DEFAULT_PROFILE_IMAGE = require("../assets/images/default_profile.jpg");//기본 프로필 이미지
+
 
     /*프로필 이미지 함수*/
     const pickImage = async () => {
         //📌갤러리 접근 권한 요청
         const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
         if(status !== "granted"){
             Alert.alert("권한 필요", "프로필 사진을 등록하려면 갤러리 접근 권한이 필요합니다.");
             return;
@@ -120,21 +130,26 @@ const JoinForm: React.FC = () => {
             aspect: [1, 1],//1:1 비율로 자르기
             quality: 1,//이미지 품질(1=최상)
             selectionLimit: 1,//1개 이미지만 선택할 수 있도록 설정
+            base64: Platform.OS === "web",
         });
 
-        //📌 이미지 선택이 취소되지 않은 경우
-        if(!result.canceled){
-            const selectedImage = result.assets[0];//0번째 값이 uri임
-            setProfileImageUri(selectedImage.uri);
+        //📌 프로필 이미지를 선택한 경우
+        if(!result.canceled && result.assets && result.assets.length > 0){
+            const selectedImage = result.assets[0];
 
             //서버로 보낼 수 있도록 파일 객체 생성(리엑트 네이티브는 파일 객체를 직접 만들어야한다.)
-            const file = {
-                uri: selectedImage.uri,
+            const imageFile: ImageFile = {
+                uri: Platform.OS === "web"
+                    ? `data:${selectedImage.mimeType};base64,${selectedImage.base64}`  // 웹은 base64
+                    : selectedImage.uri,  // 모바일은 file://
                 name: `profile_${Date.now()}.jpg`,
                 type: selectedImage.mimeType || "image/jpeg",
-            } as unknown as File;
+                size: selectedImage.fileSize ?? 0,
+            };
 
-            setProfileImage(file);
+            setProfileImage(imageFile);
+            setProfileImageUri(selectedImage.uri);
+            profileImageRef.current = selectedImage.uri;//새로고침 시 이미지가 초기화되지 않음
         }
 
     };
@@ -213,11 +228,9 @@ const JoinForm: React.FC = () => {
             return;
         }
 
-        try {
-            const userData = {
-                email, password, phone, name, birthDate, nickname,
-            };
+        const userData = {email, password, phone, name, birthDate, nickname};
 
+        try {
             const response = await joinApi(userData, profileImage);
 
             if (response.status === 201) {
@@ -302,7 +315,7 @@ const JoinForm: React.FC = () => {
                 <Text>프로필 이미지 선택</Text>
             </TouchableOpacity>
             <Image
-                source={profileImageUri ? {uri: profileImageUri} : DEFAULT_PROFILE_IMAGE}
+                source={profileImageUri ? {uri: profileImageUri} : profileImageRef.current ? {uri: profileImageRef.current} : DEFAULT_PROFILE_IMAGE}
                 style={{ width: 100, height: 100, borderRadius: 50, marginTop: 10 }}
             />
             {profileImageError ? <Text>{profileImageError}</Text> : null}

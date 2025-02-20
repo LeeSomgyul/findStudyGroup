@@ -29,6 +29,17 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         try{
+
+            System.out.println("🚀 [디버그] 받은 회원가입 요청: " + request);
+
+            if (profileImage != null && !profileImage.isEmpty()) {
+                System.out.println("📷 [디버그] 받은 프로필 이미지: " + profileImage.getOriginalFilename());
+                System.out.println("📝 [디버그] 이미지 타입: " + profileImage.getContentType());
+                System.out.println("📏 [디버그] 이미지 크기: " + profileImage.getSize() + " 바이트");
+            } else {
+                System.out.println("⚠️ [디버그] 프로필 이미지가 전달되지 않았습니다.");
+            }
+
             userService.registerUser(request, profileImage);
             return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공!");
         }catch (IllegalArgumentException e){

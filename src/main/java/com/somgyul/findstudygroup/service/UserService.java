@@ -49,12 +49,18 @@ public class UserService {
             if (profileImage != null && !profileImage.isEmpty()) {
                 String fileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
                 Path uploadPath = Paths.get("uploads"); // 프로필 이미지 저장할 폴더 지정
+
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath); //폴더 없으면 생성
+                    System.out.println("📂 [디버그] 업로드 폴더 생성 완료: " + uploadPath.toAbsolutePath());
                 }
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(profileImage.getInputStream(), filePath);
                 profileImagePath = "/uploads/" + fileName;//데이터베이스에 저장할 '상대경로'
+
+                System.out.println("✅ [디버그] 이미지 파일 저장 완료: " + filePath.toAbsolutePath());
+            }else{
+                System.out.println("⚠️ [디버그] 프로필 이미지가 전달되지 않았습니다.");
             }
 
             //나머지 입력값들 저장
@@ -68,11 +74,21 @@ public class UserService {
             user.setProfileImage(profileImagePath);
 
             userRepository.save(user);
+
+            // 🚨 최종 사용자 정보 로그
+            System.out.println("✅ [디버그] 저장된 사용자 정보:");
+            System.out.println("이메일: " + user.getEmail());
+            System.out.println("닉네임: " + user.getNickname());
+            System.out.println("프로필 이미지 경로: " + user.getProfileImage());
+
         }catch (IOException e){
+            System.err.println("❌ [오류] 이미지 처리 중 오류 발생: " + e.getMessage());
             throw new RuntimeException("이미지 처리 중 오류 발생: ", e);
         }catch (IllegalArgumentException e){
+            System.err.println("⚠️ [오류] 잘못된 입력: " + e.getMessage());
             throw e;
         }catch (Exception e){
+            System.err.println("🚨 [오류] 회원가입 처리 중 알 수 없는 오류 발생: " + e.getMessage());
             throw new RuntimeException("회원가입 처리 중 오류 발생: ", e);
         }
     }
