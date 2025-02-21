@@ -1,6 +1,5 @@
 import axios from "axios";
 import Constants from 'expo-constants';
-import { Platform } from "react-native";
 
 //타입 정리
 type ImageFile = {
@@ -38,18 +37,22 @@ export const joinApi = async (userData: any, profileImage?: ImageFile | null)=>{
     const formData = new FormData();
 
     // JSON 데이터를 Blob(이미지, 파일 다룸)으로 변환하여 FormData에 추가
-    formData.append(
-        "data",
-        new Blob([JSON.stringify(userData)], {type: "application/json"})
-    );
+    //formData.append(
+    //    "data",
+    //    new Blob([JSON.stringify(userData)], {type: "application/json"})
+    //);
+
+    Object.keys(userData).forEach((key) => {
+        formData.append(key, userData[key]);
+    });
+
 
     //프로필 이미지가 있을 경우 formData에 추가
     if(profileImage){
-        formData.append("profileImage", {
-            uri:  Platform.OS === "web" ? profileImage.uri : profileImage.uri.replace("file://", ""),
-            name: profileImage.name,
-            type: profileImage.type,
-        }as any);
+        const response = await fetch(profileImage.uri);
+        const blob = await response.blob();
+
+        formData.append("profileImage", new File([blob], profileImage.name, { type: profileImage.type }));
     }
 
     return api.post("/user/userRegister", formData, {

@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { Platform } from "react-native";
 import {View, Text, TextInput, TouchableOpacity, Alert, Image} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import globalStyles from "../styles/ globalStyles";
@@ -116,42 +115,47 @@ const JoinForm: React.FC = () => {
 
     /*프로필 이미지 함수*/
     const pickImage = async () => {
-        //📌갤러리 접근 권한 요청
+        //✅ 갤러리 접근 권한 요청
         const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
         if(status !== "granted"){
             Alert.alert("권한 필요", "프로필 사진을 등록하려면 갤러리 접근 권한이 필요합니다.");
             return;
         }
 
-        // 📌 사용자 갤러리에서 이미지 선택
+        // ✅ 사용자 갤러리에서 이미지 선택
         const result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,//이미지 편집 기능 활성화
             aspect: [1, 1],//1:1 비율로 자르기
             quality: 1,//이미지 품질(1=최상)
-            selectionLimit: 1,//1개 이미지만 선택할 수 있도록 설정
-            base64: Platform.OS === "web",
+            base64: true,
         });
 
-        //📌 프로필 이미지를 선택한 경우
-        if(!result.canceled && result.assets && result.assets.length > 0){
+
+        //✅ 프로필 이미지를 선택한 경우
+        if(!result.canceled && result.assets?.length > 0){
             const selectedImage = result.assets[0];
 
-            //서버로 보낼 수 있도록 파일 객체 생성(리엑트 네이티브는 파일 객체를 직접 만들어야한다.)
+            // 🌐 Base64 → Blob 변환
+            const byteCharacters = atob(selectedImage.base64 ?? "");
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: selectedImage.mimeType });
+
             const imageFile: ImageFile = {
-                uri: Platform.OS === "web"
-                    ? `data:${selectedImage.mimeType};base64,${selectedImage.base64}`  // 웹은 base64
-                    : selectedImage.uri,  // 모바일은 file://
+                uri:  URL.createObjectURL(blob),
                 name: `profile_${Date.now()}.jpg`,
                 type: selectedImage.mimeType || "image/jpeg",
-                size: selectedImage.fileSize ?? 0,
+                size: byteArray.length,
             };
 
+            // 이미지 상태 설정
             setProfileImage(imageFile);
             setProfileImageUri(selectedImage.uri);
-            profileImageRef.current = selectedImage.uri;//새로고침 시 이미지가 초기화되지 않음
-        }
 
+        }
     };
 
     /* 아이디(이메일) 중복확인 버튼 */

@@ -3,13 +3,10 @@ package com.somgyul.findstudygroup.controller;
 import com.somgyul.findstudygroup.dto.UserLoginRequest;
 import com.somgyul.findstudygroup.dto.UserLoginResponse;
 import com.somgyul.findstudygroup.dto.UserRegisterRequest;
-import com.somgyul.findstudygroup.entity.User;
 import com.somgyul.findstudygroup.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,26 +16,20 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private AuthenticationManagerBuilder authenticationManagerBuilder;
 
     //회원가입
     @PostMapping("/userRegister")
     public ResponseEntity<String> registerUser(
-            @RequestPart("data") UserRegisterRequest request,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("phone") String phone,
+            @RequestParam("name") String name,
+            @RequestParam("birthDate") String birthDate,
+            @RequestParam("nickname") String nickname,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         try{
-
-            System.out.println("🚀 [디버그] 받은 회원가입 요청: " + request);
-
-            if (profileImage != null && !profileImage.isEmpty()) {
-                System.out.println("📷 [디버그] 받은 프로필 이미지: " + profileImage.getOriginalFilename());
-                System.out.println("📝 [디버그] 이미지 타입: " + profileImage.getContentType());
-                System.out.println("📏 [디버그] 이미지 크기: " + profileImage.getSize() + " 바이트");
-            } else {
-                System.out.println("⚠️ [디버그] 프로필 이미지가 전달되지 않았습니다.");
-            }
+            UserRegisterRequest request = new UserRegisterRequest(email, password, phone, name, birthDate, nickname);
 
             userService.registerUser(request, profileImage);
             return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공!");
