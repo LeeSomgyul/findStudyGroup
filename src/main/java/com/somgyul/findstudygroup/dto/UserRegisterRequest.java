@@ -7,8 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor  // 기본 생성자 추가
-@AllArgsConstructor // 모든 필드를 받는 생성자 추가
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserRegisterRequest {
     private String email;
     private String password;

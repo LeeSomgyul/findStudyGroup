@@ -17,7 +17,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //회원가입
+    //✅ 회원가입
     @PostMapping("/userRegister")
     public ResponseEntity<String> registerUser(
             @RequestParam("email") String email,
@@ -29,8 +29,10 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         try{
+            //1️⃣사용자 데이터를 DTO로 묶음 (UserRegisterRequest)
             UserRegisterRequest request = new UserRegisterRequest(email, password, phone, name, birthDate, nickname);
 
+            //2️⃣userService에 데이터를 전송하여 회원가입 요청
             userService.registerUser(request, profileImage);
             return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공!");
         }catch (IllegalArgumentException e){
@@ -40,7 +42,7 @@ public class UserController {
         }
     }
 
-    //이메일 중복 확인
+    //✅ 이메일 중복 확인
     @GetMapping("/checkEmail")
     public ResponseEntity<String> checkEmail(@RequestParam String email) {
         if(userService.isEmailDuplicate(email)){
@@ -49,7 +51,7 @@ public class UserController {
         return ResponseEntity.ok().body("사용 가능한 아이디(이메일)입니다.");
     }
 
-    //닉네임 중복 확인
+    //✅ 닉네임 중복 확인
     @GetMapping("/checkNickname")
     public ResponseEntity<String> checkNickname(@RequestParam String nickname) {
         if(userService.isNicknameDuplicate(nickname)){
@@ -58,7 +60,7 @@ public class UserController {
         return ResponseEntity.ok().body("사용 가능한 닉네임입니다.");
     }
 
-    //로그인
+    //✅ 로그인
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
         UserLoginResponse response = userService.LoginUser(request);

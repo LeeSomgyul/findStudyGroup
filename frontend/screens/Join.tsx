@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import {View, Text, TextInput, TouchableOpacity, Alert, Image} from "react-native";
+import {View, Text, TextInput, TouchableOpacity, Alert, Image, Platform} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import globalStyles from "../styles/ globalStyles";
 import {checkEmailApi, checkNicknameApi, joinApi} from "@/constants/api";
@@ -61,7 +61,7 @@ const JoinForm: React.FC = () => {
     const nicknameRegex = /^[가-힣a-zA-Z]{2,7}$/; // 한글 및 영문자 2~7글자
 
 
-    /*유효성검사 함수*/
+    /*✅ 유효성검사 함수*/
     const validateInputs = () => {
         let valid = true;
 
@@ -110,55 +110,49 @@ const JoinForm: React.FC = () => {
         return valid;
     }
 
-    const DEFAULT_PROFILE_IMAGE = require("../assets/images/default_profile.jpg");//기본 프로필 이미지
+    //기본 프로필 이미지
+    const DEFAULT_PROFILE_IMAGE = require("../assets/images/default_profile.jpg");
 
 
-    /*프로필 이미지 함수*/
+    /*✅ 프로필 이미지 함수*/
     const pickImage = async () => {
-        //✅ 갤러리 접근 권한 요청
+        //1️⃣ 갤러리 접근 권한 요청
         const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if(status !== "granted"){
             Alert.alert("권한 필요", "프로필 사진을 등록하려면 갤러리 접근 권한이 필요합니다.");
             return;
         }
 
-        // ✅ 사용자 갤러리에서 이미지 선택
+        //2️⃣ 사용자가 갤러리에서 이미지 선택
         const result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,//이미지 편집 기능 활성화
             aspect: [1, 1],//1:1 비율로 자르기
             quality: 1,//이미지 품질(1=최상)
-            base64: true,
+            base64: false,//base64대신 파일 경로로 처리
         });
 
-
-        //✅ 프로필 이미지를 선택한 경우
-        if(!result.canceled && result.assets?.length > 0){
+        //3️⃣ 이미지 선택이 완료된 후
+        if (!result.canceled && result.assets?.length > 0) {
             const selectedImage = result.assets[0];
 
-            // 🌐 Base64 → Blob 변환
-            const byteCharacters = atob(selectedImage.base64 ?? "");
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: selectedImage.mimeType });
-
+            //4️⃣ 웹과 모바일에 따라 이미지 처리 다르게 하기
             const imageFile: ImageFile = {
-                uri:  URL.createObjectURL(blob),
+                uri: Platform.OS === "web"
+                    ? URL.createObjectURL(await (await fetch(selectedImage.uri)).blob())// 웹: Blob으로 변환
+                    : selectedImage.uri, // 모바일: 경로 그대로 사용
                 name: `profile_${Date.now()}.jpg`,
                 type: selectedImage.mimeType || "image/jpeg",
-                size: byteArray.length,
+                size: selectedImage.fileSize ?? 0,
             };
 
-            // 이미지 상태 설정
+            //5️⃣ 상태 저장
             setProfileImage(imageFile);
             setProfileImageUri(selectedImage.uri);
-
         }
+
     };
 
-    /* 아이디(이메일) 중복확인 버튼 */
+    /*✅ 아이디(이메일) 중복확인 버튼 */
     const handleEmailCheck = async () => {
         if (!email.trim()) {
             setEmailError("아이디(이메일)를 입력해주세요.")
@@ -184,7 +178,7 @@ const JoinForm: React.FC = () => {
         }
     };
 
-    /*닉네임 중복확인 버튼*/
+    /*✅ 닉네임 중복확인 버튼*/
     const handleNicknameCheck = async () => {
         if(!nickname.trim()){
             setNicknameError("닉네임을 입력해주세요.");
@@ -210,7 +204,7 @@ const JoinForm: React.FC = () => {
         }
     }
 
-    /* 가입하기 버튼 */
+    /*✅ 가입하기 버튼 */
     const handleSubmit = async () => {
         setEmailError(""); setPasswordError(""); setConfirmPasswordError("");
         setPhoneError(""); setNameError(""); setBirthDateError("");

@@ -30,41 +30,44 @@ public class UserService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    /*회원가입*/
+    /*✅ 회원가입*/
     public void registerUser(UserRegisterRequest request, MultipartFile profileImage) {
         try {
-            //중복확인
+            //1️⃣ 중복확인
             if (userRepository.existsByEmail(request.getEmail())) {
                 throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
             }
             if (userRepository.existsByNickname(request.getNickname())) {
                 throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
             }
-            if (userRepository.existsByPhone(request.getPhone())) {
-                throw new IllegalArgumentException("이미 사용중인 휴대전화 번호입니다.");
-            }
 
-            //프로필 이미지 저장
+            //2️⃣ 프로필 이미지 저장
             String profileImagePath = null;
             if (profileImage != null && !profileImage.isEmpty()) {
+                //📌 원본 파일 이름 가져오기
                 String originalFilename = profileImage.getOriginalFilename();
+                //📌 파일 확장자 있으면 기본확장자 사용, 없으면 .jpg 붙이기
                 String fileExtension = (originalFilename != null && originalFilename.contains("."))
                         ? originalFilename.substring(originalFilename.lastIndexOf("."))
                         : ".jpg";
-
+                //📌 '초'를 사용하여 파일명 고유하게 생성
                 String fileName = System.currentTimeMillis() + fileExtension;
+                //📌 이미지를 저장할 폴더 경로 설정
                 Path uploadPath = Paths.get("uploads");
 
+                //📌 upload폴더 없으면 생성하기
                 if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath); //폴더 없으면 생성
+                    Files.createDirectories(uploadPath);
                 }
+                //📌 최종 이미지 저장 경로 저장(upload경로 + fileName)
                 Path filePath = uploadPath.resolve(fileName);
-                //Files.copy(profileImage.getInputStream(), filePath);
+                //📌 이미지 파일을 최종 경로에 저장
                 Files.copy(profileImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                profileImagePath = "/uploads/" + fileName;//데이터베이스에 저장할 '상대경로'
+                //📌 DB에 저장할 이미지 경로
+                profileImagePath = "/uploads/" + fileName;
             }
 
-            //나머지 입력값들 저장
+            //3️⃣ 사용자 정보를 DB에 저장
             User user = new User();
             user.setEmail(request.getEmail());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -74,6 +77,7 @@ public class UserService {
             user.setNickname(request.getNickname());
             user.setProfileImage(profileImagePath);
 
+            //4️⃣ DB에 최종 저장
             userRepository.save(user);
         }catch (IOException e){
             throw new RuntimeException("이미지 처리 중 오류 발생: ", e);
@@ -84,17 +88,17 @@ public class UserService {
         }
     }
 
-    /*이메일 중복 확인*/
+    /*✅ 이메일 중복 확인*/
     public boolean isEmailDuplicate(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    /*닉네임 중복 확인*/
+    /*✅ 닉네임 중복 확인*/
     public boolean isNicknameDuplicate(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
 
-    /*로그인*/
+    /*✅ 로그인*/
     public UserLoginResponse LoginUser(UserLoginRequest request) {
         Optional<User> userOptional = userRepository.findByemail(request.getEmail());
 
