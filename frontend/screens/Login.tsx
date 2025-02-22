@@ -21,6 +21,7 @@ const Login: React.FC = () => {
     const { setAuth } = useContext(AuthContext);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
+    //✅ 로그인 버튼 클릭 시
     const handleLogin = async () => {
         if (!email) {
             Alert.alert("아이디(이메일)를 입력해주세요.");
@@ -33,15 +34,20 @@ const Login: React.FC = () => {
         }
 
         try {
+            //1️⃣ 백엔드로 아이디, 비밀번호 전송
             const response = await loginUserApi(email, password);
+            //2️⃣ 아이디, 비밀번호에 맞는 사용자 정보 응답받음
             const { id, token, profileImage } = response.data;
 
+            //3️⃣ AsyncStorage에 정보 저장(새로고침 해도 유지)
             await AsyncStorage.setItem("userId", id.toString());
             await AsyncStorage.setItem("token", token);
             await AsyncStorage.setItem("profileImage", profileImage);
+
+            //4️⃣ 기본 토근으로 설정하여 api접근 시 사용자가 누군지 알 수 있음
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-            // 로그인 상태 업데이트
+            //5️⃣ 로그인 상태 업데이트
             setAuth({
                 isLoggedIn: true,
                 userId: id,
@@ -50,7 +56,6 @@ const Login: React.FC = () => {
             });
 
             setErrormessage("");
-            Alert.alert("로그인 성공", "홈 화면으로 이동합니다.");
             navigation.navigate("Main");
         } catch (error: any) {
             setErrormessage("아이디(이메일) 또는 비밀번호가 틀렸습니다.");

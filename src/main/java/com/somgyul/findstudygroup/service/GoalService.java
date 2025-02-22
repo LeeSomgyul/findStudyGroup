@@ -19,28 +19,42 @@ public class GoalService {
 
     /*✅ 목표 추가 기능*/
     public Goal createGoal(GoalDto goalDto) {
-
-        //목표 등록하려는 사용자가 누군지 찾기
+        //1️⃣ User entity에서 사용자(userId)가 존재하는지 찾기
         User user = userRepository
                 .findById(goalDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        //사용자 있다면 새로운 목표 객체 생성
-        Goal goal = new Goal();
-        goal.setUser(user);
-        goal.setDate(LocalDate.parse(goalDto.getDate()));//String 날짜를 LocalDate 로 변환 후 저장
-        goal.setContent(goalDto.getContent());
-        goal.setCompleted(false);
-        goal.setDescription(goalDto.getDescription());
-        goal.setImageUrl(goalDto.getImageUrl());
+        //2️⃣ 해당 날짜에 목표가 5개 이상 있다면 예외처리
+        Long count = goalRepository.countByUserIdAndDate(user, goalDto.getDate());
+        if(count >= 5){
+            throw new RuntimeException("목표는 하루 최대 5개까지 가능합니다.");
+        }
 
-        //사용자가 입력한 목표를 DB에 저장
-        return goalRepository.save(goal);
+        //3️⃣ entity에 맞게 목표 생성
+        Goal goal = Goal.builder()
+                .user(user)
+                .date(goalDto.getDate())
+                .content(goalDto.getContent())
+                .description(goalDto.getDescription())
+                .isCompleted(false)
+                .imageUrl(goalDto.getImageUrl())
+                .build();
+
+        //4️⃣ DB에 저장
+        Goal savedGoal = goalRepository.save(goal);
+
+        //5️⃣ 저장된 목표를 Dto로 변환해서 전달
+        return GoalDto.fromEntity(savedGoal);
     }
 
     /*✅ 특정 날짜의 목표 가져오기*/
     public List<Goal> getGoalsByDate(Long userId, String date) {
-        return goalRepository.findByUserIdAndDate(userId, LocalDate.parse(date));
+        //1️⃣ User entity에서 사용자(userId)가 존재하는지 찾기
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        //2️⃣ goalRepository에 사용자(user)와 조회하고 싶은 날짜(date) 전달
+        return goalRepository.findByUserIdAndDate(user, LocalDate.parse(date));
     }
 
     /*✅ 목표 달성 상태 바꾸기(달성, 미달성)*/

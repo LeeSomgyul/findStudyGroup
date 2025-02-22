@@ -1,14 +1,9 @@
 package com.somgyul.findstudygroup.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.sql.Timestamp;
+import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "goals")
@@ -16,6 +11,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Goal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +35,11 @@ public class Goal {
 
     private String imageUrl;
 
-    @CreationTimestamp
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
+
+    //📌 createdAt 자동 생성
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
