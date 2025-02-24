@@ -2,35 +2,35 @@ import axios from "axios";
 import Constants from 'expo-constants';
 import {Platform} from "react-native";
 
-//✅ 타입 정리
-type ImageFile = {
-  uri: string;
-  name: string;
-  type: string;
-};
-
 const API_BASE_URL = Constants.expoConfig?.extra?.API_BASE_URL;
 
-const api = axios.create({
+const userApi = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         "Content-Type": "application/json",
     },
 });
 
+//📌 타입 정리
+type ImageFile = {
+    uri: string;
+    name: string;
+    type: string;
+};
+
 // ✅ 로그인
 export const loginUserApi = async (email: string, password: string)=>{
-    return api.post("/user/login", {email, password});
+    return userApi.post("/user/login", {email, password});
 }
 
 //✅ 회원가입 중복확인(아이디(이메일))
 export const checkEmailApi = async (email: string)=>{
-    return api.get("/user/checkEmail", {params: {email} });
+    return userApi.get("/user/checkEmail", {params: {email} });
 }
 
 //✅ 회원가입 중복확인(닉네임)
 export const checkNicknameApi = async (nickname: string) => {
-    return api.get("/user/checkNickname", {params: {nickname} });
+    return userApi.get("/user/checkNickname", {params: {nickname} });
 }
 
 //✅ 회원가입
@@ -60,7 +60,8 @@ export const joinApi = async (userData: any, profileImage?: ImageFile | null)=>{
     }
 
     //3️⃣ 서버에 POST 요청(회원가입 정보, 이미지 전송)
-    return api.post("/user/userRegister", formData, {
+    return userApi.post("/user/userRegister", formData, {
         headers: { "Content-Type": "multipart/form-data" },//전송하는 데이터의 형식을 알려줌(필수)
     });
 }
+

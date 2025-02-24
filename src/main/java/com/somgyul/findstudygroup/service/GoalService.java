@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class GoalService {
     private final UserRepository userRepository;
 
     /*✅ 목표 추가 기능*/
-    public Goal createGoal(GoalDto goalDto) {
+    public GoalDto createGoal(GoalDto goalDto) {
         //1️⃣ User entity에서 사용자(userId)가 존재하는지 찾기
         User user = userRepository
                 .findById(goalDto.getUserId())
@@ -48,22 +49,31 @@ public class GoalService {
     }
 
     /*✅ 특정 날짜의 목표 가져오기*/
-    public List<Goal> getGoalsByDate(Long userId, String date) {
-        //1️⃣ User entity에서 사용자(userId)가 존재하는지 찾기
+    public List<GoalDto> getGoalsByDate(Long userId, LocalDate date) {
+        //1️⃣ userId로 user 찾기
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        //2️⃣ goalRepository에 사용자(user)와 조회하고 싶은 날짜(date) 전달
-        return goalRepository.findByUserIdAndDate(user, LocalDate.parse(date));
+
+        //2️⃣ 사용자의 목표 불러오기
+        List<Goal> goals = goalRepository.findByUserIdAndDate(user, date);
+
+        //3️⃣ Goal를 GoalDto로 변환
+        return goals.stream().map(GoalDto::fromEntity).collect(Collectors.toList());
     }
 
     /*✅ 목표 달성 상태 바꾸기(달성, 미달성)*/
-    public Goal updateGoalStatus(Long id, boolean isCompleted) {
-        Goal goal = goalRepository
-                .findById(id)
-                .orElseThrow(() -> new RuntimeException("해당 목표 id에 맞는 목표를 찾지 못하였습니다."));
-
+    public GoalDto updateGoalCompletion(Long goalId, boolean isCompleted) {
+        //1️⃣ goalId에 해당하는 목표를 찾음
+        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new RuntimeException("목표를 찾지 못하였습니다."));
+        //2️⃣ 상태가 이미 원하는 값이면 DB에 이중 저장하지 말고 바로 상태 반환
+        if(goal.isCompleted() == isCompleted){
+            return GoalDto.fromEntity(goal);
+        }
+        //3️⃣ 목표 상태를 변경(달성, 미달성) 후 DB에 저장
         goal.setCompleted(isCompleted);
-        return goalRepository.save(goal);
+        Goal updated = goalRepository.save(goal);
+        //4️⃣ Goal를 GoalDto로 변환해서 사용자에게 필요한 정보만 전달
+        return GoalDto.fromEntity(updated);
     }
 }

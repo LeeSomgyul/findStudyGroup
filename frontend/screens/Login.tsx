@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AuthContext } from "../app/authContext";
 import globalStyles from "../styles/ globalStyles";
-import {loginUserApi} from "../constants/api";
+import {loginUserApi} from "../constants/userApi";
 
 // ✅ 네비게이션 타입 정의
 type RootStackParamList = {

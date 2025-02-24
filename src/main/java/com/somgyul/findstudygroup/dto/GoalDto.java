@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class GoalDto {
-    private Long id;
+    private Long goalId;
     private Long userId;
     private LocalDate date;
     private String content;
@@ -23,8 +23,8 @@ public class GoalDto {
     //✅ Entity -> Dto로 변환
     public static GoalDto fromEntity(Goal goal) {
         return GoalDto.builder()
-                .id(goal.getId())
-                .userId(goal.getUser().getId())
+                .goalId(goal.getId())
+                .userId(goal.getUser() != null ? goal.getUser().getId() : null)
                 .date(goal.getDate())
                 .content(goal.getContent())
                 .isCompleted(goal.isCompleted())

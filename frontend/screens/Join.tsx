@@ -4,7 +4,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import {View, Text, TextInput, TouchableOpacity, Alert, Image, Platform} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import globalStyles from "../styles/ globalStyles";
-import {checkEmailApi, checkNicknameApi, joinApi} from "@/constants/api";
+import {checkEmailApi, checkNicknameApi, joinApi} from "@/constants/userApi";
 
 
 // ✅ 네비게이션 스택 타입 정의
