@@ -1,14 +1,23 @@
-import React from "react";
+import React, {useContext} from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import Router from "./Router";
-import { AuthProvider } from "./authContext";
+import {AuthContext, AuthProvider} from "./authContext";
 
 export default function App() {
+
     return (
         <AuthProvider>
-            <NavigationContainer>
-                <Router />
-            </NavigationContainer>
+            <MainApp/>
         </AuthProvider>
+    );
+}
+
+const MainApp = () => {
+    const {auth} = useContext(AuthContext);
+
+    return (
+        <NavigationContainer>
+            <Router isLoggedIn={auth.isLoggedIn} />
+        </NavigationContainer>
     );
 }

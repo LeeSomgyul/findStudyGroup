@@ -10,7 +10,7 @@ import {loginUserApi} from "../constants/userApi";
 
 // ✅ 네비게이션 타입 정의
 type RootStackParamList = {
-    Main: undefined;
+    MainStack: {screen: string} | undefined;
 };
 
 const Login: React.FC = () => {
@@ -56,7 +56,7 @@ const Login: React.FC = () => {
             });
 
             setErrormessage("");
-            navigation.navigate("Main");
+            navigation.navigate("MainStack", {screen: "Home"});
         } catch (error: any) {
             setErrormessage("아이디(이메일) 또는 비밀번호가 틀렸습니다.");
         }
