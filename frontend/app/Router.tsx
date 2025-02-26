@@ -1,17 +1,14 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createDrawerNavigator } from "@react-navigation/drawer";
 
 import MainStack from "@/navigation/MainStack";
 import AuthStack from "@/navigation/AuthStack";
-import ProfileHeader from "@/components/ProfileHeader";
 
 interface RouterProps {
     isLoggedIn: boolean;
 }
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
 
 // ✅ 전체 네비게이션 설정
 const Router: React.FC<RouterProps> = ({ isLoggedIn }) => {
