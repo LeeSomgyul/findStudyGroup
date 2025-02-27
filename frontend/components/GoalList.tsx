@@ -61,7 +61,7 @@ const GoalList = ({ selectedDate }: { selectedDate: string }) => {
     return (
         <View style={{ padding: 10 }}>
             {goals.length === 0 ? (
-                <Text>오늘은 목표를 세우지 않았어요🫡</Text>
+                <Text>세운 목표가 없어요🫡</Text>
             ) : (
                 <FlatList
                     data={goals}

@@ -5,9 +5,14 @@ import com.somgyul.findstudygroup.entity.Goal;
 import com.somgyul.findstudygroup.entity.User;
 import com.somgyul.findstudygroup.repository.GoalRepository;
 import com.somgyul.findstudygroup.repository.UserRepository;
+import com.somgyul.findstudygroup.exception.GoalLimitExceededException;
+import com.somgyul.findstudygroup.exception.InvalidGoalDateException;
+import com.somgyul.findstudygroup.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,32 +24,46 @@ public class GoalService {
     private final UserRepository userRepository;
 
     /*✅ 목표 추가 기능*/
+    @Transactional
     public GoalDto createGoal(GoalDto goalDto) {
-        //1️⃣ User entity에서 사용자(userId)가 존재하는지 찾기
-        User user = userRepository
-                .findById(goalDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        LocalDate today = LocalDate.now();
+        LocalDate endDate = today.plusDays(6);
+        LocalDate goalDate = goalDto.getDate();
 
-        //2️⃣ 해당 날짜에 목표가 5개 이상 있다면 예외처리
-        Long count = goalRepository.countByUserIdAndDate(user, goalDto.getDate());
-        if(count >= 5){
-            throw new RuntimeException("목표는 하루 최대 5개까지 가능합니다.");
+        //1️⃣ 이미 지나간 날짜에 대한 목표 추가 불가
+        if(goalDate.isBefore(today)){
+            throw new InvalidGoalDateException("이미 지난 날짜에는 목표를 추가할 수 없어요🥲");
         }
 
-        //3️⃣ entity에 맞게 목표 생성
+        //2️⃣ 오늘부터 7일 이내에 대한 목표만 추가 가능
+        if(goalDate.isAfter(endDate)) {
+            throw new InvalidGoalDateException("오늘부터 7일 이내의 목표만 추가할 수 있어요🥲");
+        }
+
+        //3️⃣ User entity에서 사용자(userId)가 존재하는지 찾기
+        User user = userRepository
+                .findById(goalDto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+        //4️⃣ 해당 날짜에 목표가 5개 이상 있다면 예외처리
+        Long count = goalRepository.countByUserIdAndDate(user, goalDate);
+        if(count >= 5){
+            throw new GoalLimitExceededException("목표는 하루 최대 5개까지 가능합니다.");
+        }
+
+        //5️⃣ entity에 맞게 목표 생성
         Goal goal = Goal.builder()
                 .user(user)
-                .date(goalDto.getDate())
+                .date(goalDate)
                 .content(goalDto.getContent())
                 .description(goalDto.getDescription())
                 .isCompleted(false)
                 .imageUrl(goalDto.getImageUrl())
                 .build();
 
-        //4️⃣ DB에 저장
         Goal savedGoal = goalRepository.save(goal);
 
-        //5️⃣ 저장된 목표를 Dto로 변환해서 전달
+        //6️⃣ 저장된 목표를 Dto로 변환해서 전달
         return GoalDto.fromEntity(savedGoal);
     }
 

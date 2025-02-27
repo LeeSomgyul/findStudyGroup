@@ -2,16 +2,10 @@ import React, { useContext, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { AuthContext } from "../app/authContext";
 import globalStyles from "../styles/ globalStyles";
 import {loginUserApi} from "../constants/userApi";
 
-// ✅ 네비게이션 타입 정의
-type RootStackParamList = {
-    MainStack: {screen: string} | undefined;
-};
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -19,7 +13,6 @@ const Login: React.FC = () => {
     const [errormessage, setErrormessage] = useState("");
 
     const { setAuth } = useContext(AuthContext);
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
     //✅ 로그인 버튼 클릭 시
     const handleLogin = async () => {
@@ -54,9 +47,8 @@ const Login: React.FC = () => {
                 profileImage,
                 token,
             });
-
             setErrormessage("");
-            navigation.navigate("MainStack", {screen: "Home"});
+            //6️⃣ home으로 이동은 <Router.tsx>에서 작성함
         } catch (error: any) {
             setErrormessage("아이디(이메일) 또는 비밀번호가 틀렸습니다.");
         }

@@ -23,29 +23,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. Authorization 헤더에서 JWT 토큰 읽기
+        //1️⃣ Authorization 헤더에서 JWT 토큰 읽기
         String token = request.getHeader("Authorization");
 
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7); // "Bearer " 부분 제거
             try {
-                // 2. JWT 토큰 검증 및 사용자 정보 추출
+                //2️⃣ JWT 토큰 검증 및 사용자 정보 추출
                 String username = jwtUtil.validateToken(token);
                 if (username != null) {
-                    // 3. 인증 객체 생성 및 SecurityContext에 저장
+                    //3️⃣ 인증 객체 생성 및 SecurityContext에 저장
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(username, null, null);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (Exception e) {
-                // 4. 검증 실패 시 401 상태 반환
+                //4️⃣ 검증 실패 시 401 상태 반환
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid or expired token");
                 return;
             }
+        }else{
+            //5️⃣ 토큰이 없는 경우 200 반환(403반환 방지)
+            if(request.getRequestURI().equals("/")){
+                response.setStatus(HttpServletResponse.SC_OK);
+                return;
+            }
         }
 
-        // 5. 다음 필터로 요청 전달
+        //5️⃣ 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
     }
 }

@@ -1,15 +1,17 @@
 //⭐ 로그인 후 화면들을 관리
-import HomeScreen from "@/screens/Home";
-import DailyCalendarScreen from "@/screens/DailyCalendar";
+import {useContext} from "react";
+import {Alert, Image, Text, TouchableOpacity, View} from "react-native";
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import {Alert, Image, Text, TouchableOpacity, View} from "react-native";
-import {useContext} from "react";
-import {AuthContext} from "@/app/authContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import axios from "axios";
 import Constants from "expo-constants";
 
+import {AuthContext} from "@/app/authContext";
+import HomeScreen from "@/screens/Home";
+import DailyCalendarScreen from "@/screens/DailyCalendar";
+import GoalAddScreen from "@/screens/GoalAdd";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -49,6 +51,7 @@ const TabNavigator = () => {
     return(
         <Tab.Navigator screenOptions={{headerShown: false}}>
             <Tab.Screen name="Home" component={HomeScreen}/>
+            <Tab.Screen name="GoalAdd" component={GoalAddScreen}/>
             <Tab.Screen name="DailyCalendar" component={DailyCalendarScreen}/>
         </Tab.Navigator>
     );
@@ -60,7 +63,7 @@ const MainStack = () => {
       <Drawer.Navigator
           screenOptions={{headerShown: true}}
           drawerContent={(props) => <CustomHeader {...props}/>}>
-          <Drawer.Screen name="Tabs" component={TabNavigator}/>
+          <Drawer.Screen name="Tabs" component={TabNavigator} options={{headerTitle: ""}}/>
       </Drawer.Navigator>
   );
 };

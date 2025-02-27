@@ -1,8 +1,7 @@
 import axios from "axios";
-import Constants from 'expo-constants';
 import {Platform} from "react-native";
+import {API_BASE_URL} from "@/constants/constants";
 
-const API_BASE_URL = Constants.expoConfig?.extra?.API_BASE_URL;
 
 const userApi = axios.create({
     baseURL: API_BASE_URL,

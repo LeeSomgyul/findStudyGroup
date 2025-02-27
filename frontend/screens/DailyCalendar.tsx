@@ -17,17 +17,18 @@ const DailyCalendar = () => {
     const { auth } = useContext(AuthContext);
     const navigation = useNavigation();
     const [selectedDate, setSelectedDate] = useState<string>(
-        new Date().toISOString().split("T")[0] // ✅ 초기값: 오늘 날짜 (YYYY-MM-DD 형식)
+        // 📌 초기값: 오늘 날짜 (YYYY-MM-DD 형식)
+        new Date().toISOString().split("T")[0]
     );
 
-    //✅ 로그인하지 않은 사용자는 로그인 화면으로 이동
+    //1️⃣ 로그인하지 않은 사용자는 로그인 화면으로 이동
     useEffect(() => {
         if(!auth.isLoggedIn){
             navigation.navigate("Login" as never)
         }
     }, [auth.isLoggedIn]);
 
-    // ✅ 달력 날짜 선택 시 상태 업데이트
+    //2️⃣ 달력 날짜 선택 시 상태 업데이트
     const handleDateChange = (day: { dateString: string }) => {
         setSelectedDate(day.dateString);
     };
