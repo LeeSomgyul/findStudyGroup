@@ -1,6 +1,12 @@
 import axios from "axios";
 import {API_BASE_URL, OPENAI_API_KEY} from "@/constants/constants";
 
+type GoalParams = {
+    userId: number | null;
+    date: string;
+    content: string;
+}
+
 const goalApi = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -10,8 +16,10 @@ const goalApi = axios.create({
 
 //✅ ChateGPT로 랜덤 목표 가져오기
 export const fetchRandomGoals = async () => {
+    console.log(OPENAI_API_KEY);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     try {
-        //1️⃣ 목표 3개 받기
+        //1️⃣ 목표 5개 받기
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
@@ -19,7 +27,10 @@ export const fetchRandomGoals = async () => {
                 messages: [
                     {
                         role: "system",
-                        content: "당신은 창의적인 목표 생성기입니다. 사용자가 하루 동안 도전할 수 있는 재미있고 신박한 목표 3개를 생성하세요. 목표는 예상치 못한 행동을 유도하는 방식으로 작성해야 합니다. 예를 들어, '평소 가보지 않은 길로 집에 가보기', '배달 앱을 이용해 직접 배달원 체험해보기' 같은 방식이어야 합니다. 목표는 간결하면서도 실행 가능한 형태로 제공하세요.",
+                        content: "당신은 창의적인 목표 생성기입니다. 사용자가 하루 동안 도전할 수 있는 재미있고 신박한 목표 3개를 만들어 주세요.\n" +
+                            "목표는 한국인의 정서에 맞고, 한국에서 실천 가능한 것 이어야 합니다.\n" +
+                            "최근 한국 트렌드를 반영하되, 항상 새로운 요소를 포함하세요.\n" +
+                            "목표는 한 문장으로 간결하게 작성하고, 번호 없이 줄바꿈으로 출력하세요.\n",
                     },
                 ],
                 temperature: 1.0, // 창의성을 높임
@@ -42,6 +53,14 @@ export const fetchRandomGoals = async () => {
         return [];
     }
 };
+
+//✅ 사용자가 선택한 목표를 추가하기
+export const createGoal = async ({userId, date, content}: GoalParams) => {
+    const response = await axios.post(`${API_BASE_URL}/goals`, {
+        userId, date, content,
+    });
+    return response.data;
+}
 
 //✅ 선택한 날짜의 목표 가져오기
 export const getGoalsByDate = async (userId: number, date: string)=>{
