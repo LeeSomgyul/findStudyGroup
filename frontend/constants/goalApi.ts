@@ -16,7 +16,6 @@ const goalApi = axios.create({
 
 //✅ ChateGPT로 랜덤 목표 가져오기
 export const fetchRandomGoals = async () => {
-    console.log(OPENAI_API_KEY);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     try {
         //1️⃣ 목표 5개 받기
@@ -27,10 +26,14 @@ export const fetchRandomGoals = async () => {
                 messages: [
                     {
                         role: "system",
-                        content: "당신은 창의적인 목표 생성기입니다. 사용자가 하루 동안 도전할 수 있는 재미있고 신박한 목표 3개를 만들어 주세요.\n" +
-                            "목표는 한국인의 정서에 맞고, 한국에서 실천 가능한 것 이어야 합니다.\n" +
-                            "최근 한국 트렌드를 반영하되, 항상 새로운 요소를 포함하세요.\n" +
-                            "목표는 한 문장으로 간결하게 작성하고, 번호 없이 줄바꿈으로 출력하세요.\n",
+                        content: "실현 가능하고 최신 트렌드를 반영한 랜덤 목표 3가지를 생성해줘.\n"+
+                            "각 목표는 신박하고 실천할 수 있어야 해.\n"+
+                            "한 문장으로 끝내고, '~하기' 형태로 작성해.\n"+
+                            "설명 없이 간결하게, 문장 앞이나 안에 기호(+,-,*, 등)를 포함하지 마.\n"+
+                            "예시:\n+"+
+                            "배달 기사가 되어 직접 음식 배달해보기\n"+
+                            "오래된 카페 방문하여 전통 차 마시기\n"+
+                            "편의점에서 신상 과자 하나 사서 먹어보기",
                     },
                 ],
                 temperature: 1.0, // 창의성을 높임

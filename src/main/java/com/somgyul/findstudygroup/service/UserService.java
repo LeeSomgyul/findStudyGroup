@@ -6,7 +6,8 @@ import com.somgyul.findstudygroup.dto.UserRegisterRequest;
 import com.somgyul.findstudygroup.entity.User;
 import com.somgyul.findstudygroup.repository.UserRepository;
 import com.somgyul.findstudygroup.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,14 +22,17 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
 
     /*✅ 회원가입*/
     public void registerUser(UserRegisterRequest request, MultipartFile profileImage) {
@@ -102,22 +106,23 @@ public class UserService {
     public UserLoginResponse LoginUser(UserLoginRequest request) {
         Optional<User> userOptional = userRepository.findByemail(request.getEmail());
 
-        //사용자 인증
+        //1️⃣ 사용자 인증
         if(userOptional.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOptional.get().getPassword())) {
             throw new IllegalArgumentException("아이디(이메일) 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        //사용자 정보 가져오기
+        //2️⃣ 사용자 정보 가져오기
         User user = userOptional.get();
 
-        //기본 프로필 설정
+        //3️⃣ 기본 프로필 설정
         String profileImage = user.getProfileImage();
         if(profileImage == null || profileImage.isEmpty()) {
             profileImage = "/uploads/기본프로필.jpg";
         }
 
-        //토큰 생성
-        String token = jwtUtil.generateToken(user.getEmail());
+        //4️⃣ 토큰 생성
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        String token = jwtUtil.generateToken(userDetails);
 
         return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), profileImage, token);
     }

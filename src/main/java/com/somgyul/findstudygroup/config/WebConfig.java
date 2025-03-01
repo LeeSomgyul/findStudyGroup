@@ -2,12 +2,14 @@ package com.somgyul.findstudygroup.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
 
 @Configuration
+@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
     /*업로드된 이미지 파일을 정적 소스로 제공*/
@@ -25,14 +27,14 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         //API요청
         registry.addMapping("/api/**")
-                .allowedOriginPatterns("*")
+                .allowedOrigins("http://localhost:8081")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
 
         //업로드된 파일 요청
         registry.addMapping("/uploads/**")
-                .allowedOriginPatterns("*")
+                .allowedOrigins("http://localhost:8081")
                 .allowedMethods("GET")
                 .allowedHeaders("*")
                 .allowCredentials(true);

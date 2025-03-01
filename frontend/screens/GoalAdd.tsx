@@ -54,7 +54,7 @@ const GoalAdd = () => {
         const goals = await fetchRandomGoals();
         setRandomGoals(goals);
 
-        setTimeout(() => setIsLoading(false), 5000);
+        setTimeout(() => setIsLoading(false), 2000);
     };
 
     //✅ 랜덤 목표 선택하기
@@ -103,7 +103,6 @@ const GoalAdd = () => {
                 ))}
             </Picker>
             <Button title="랜덤 목표 생성하기🚩" onPress={handleFetchRandomGoals} disabled={isLoading}/>
-            <Text>마음에 드는 목표를 선택해주세요.</Text>
             {randomGoals.length > 0 ? (
                 <FlatList
                     data={randomGoals}
@@ -115,7 +114,7 @@ const GoalAdd = () => {
                     )}
                 />
             ):(
-                <Text>목표를 불러오는 중...🏃‍️</Text>
+                <Text>버튼을 눌러 목표를 생성해보세요!‍️</Text>
             )}
             <Text>선택한 목표</Text>
             <FlatList
