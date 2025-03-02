@@ -16,6 +16,7 @@ const Login: React.FC = () => {
 
     //✅ 로그인 버튼 클릭 시
     const handleLogin = async () => {
+
         if (!email) {
             Alert.alert("아이디(이메일)를 입력해주세요.");
             return;
@@ -27,8 +28,11 @@ const Login: React.FC = () => {
         }
 
         try {
+            console.log("📡 백엔드로 로그인 요청 보냄:", email, password); // ✅ 로그 추가
             //1️⃣ 백엔드로 아이디, 비밀번호 전송
             const response = await loginUserApi(email, password);
+            console.log("✅ 로그인 성공! 응답 데이터:", response.data); // ✅ 응답 확인
+
             //2️⃣ 아이디, 비밀번호에 맞는 사용자 정보 응답받음
             const { id, token, profileImage } = response.data;
 
@@ -50,6 +54,11 @@ const Login: React.FC = () => {
             setErrormessage("");
             //6️⃣ home으로 이동은 <Router.tsx>에서 작성함
         } catch (error: any) {
+            console.error("❌ 로그인 실패! 오류 메시지:", error); // ✅ 실패 로그 추가
+            if (error.response) {
+                console.error("❌ 백엔드 응답 코드:", error.response.status); // ✅ HTTP 응답 코드 확인
+                console.error("❌ 백엔드 응답 데이터:", error.response.data); // ✅ 백엔드에서 보낸 오류 메시지 확인
+            }
             setErrormessage("아이디(이메일) 또는 비밀번호가 틀렸습니다.");
         }
     };

@@ -108,11 +108,14 @@ public class UserService {
 
         //1️⃣ 사용자 인증
         if(userOptional.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOptional.get().getPassword())) {
+            System.out.println("로그인 실패(사용자를 찾을 수 없음): " + request.getEmail());
             throw new IllegalArgumentException("아이디(이메일) 또는 비밀번호가 일치하지 않습니다.");
         }
 
         //2️⃣ 사용자 정보 가져오기
         User user = userOptional.get();
+
+        System.out.println("✅ 사용자 인증 성공: " + user.getEmail()); // ✅ 성공 로그 추가
 
         //3️⃣ 기본 프로필 설정
         String profileImage = user.getProfileImage();
@@ -123,6 +126,8 @@ public class UserService {
         //4️⃣ 토큰 생성
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         String token = jwtUtil.generateToken(userDetails);
+
+        System.out.println("✅ JWT 생성 성공: " + token);
 
         return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), profileImage, token);
     }

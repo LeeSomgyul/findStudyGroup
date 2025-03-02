@@ -9,8 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -20,11 +18,9 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
     }
 
     //✅ 사용자가 보낸 JWT를 확인해서 로그인한 상태인지 인증하는 과정(이 사람이 로그인된 사용자가 맞는가?)
@@ -43,16 +39,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-                //2️⃣ JWT에서 사용자 아이디(username), 전체 데이터(roles, exp 등)를 꺼냄
-                String username = jwtUtil.extractUsername(token);
+                //2️⃣ JWT에서 사용자 아이디(email), 전체 데이터(roles, exp 등)를 꺼냄
+                String email = jwtUtil.extractEmail(token);
                 Claims claims = jwtUtil.extractClaims(token);
 
                 //3️⃣ 사용자가 로그인한 상태인지 확인하기
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     //📌 JWT가 유효한지 검사(만료, 위조 확인)
-                    if(jwtUtil.validateToken(token, userDetails)) {
+                    if(jwtUtil.validateToken(token)) {
                         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
                         //📌 JWT에서 roles정보 가져와서 Spring Security에서 사용 가능하도록 하기
@@ -63,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                         //📌 로그인 완료!(JWT를 기반으로 로그인 객체 생성)
                         UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+                                new UsernamePasswordAuthenticationToken(email, null, authorities);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }

@@ -42,7 +42,7 @@ public class JwtUtil {
     }
 
     //3️⃣ JWT에서 사용자명(subject) 추출하기
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return extractClaims(token).getSubject();
     }
 
@@ -58,8 +58,12 @@ public class JwtUtil {
     }
 
     //6️⃣ JWT 토큰 검증(사용자와 토큰 정보가 옳은지, 토큰이 만료되었는지)
-    public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public boolean validateToken(String token) {
+        try{
+            extractClaims(token);
+            return !isTokenExpired(token);
+        }catch (Exception e) {
+            return false;
+        }
     }
 }
