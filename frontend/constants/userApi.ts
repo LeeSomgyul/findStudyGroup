@@ -2,20 +2,20 @@ import axios from "axios";
 import {Platform} from "react-native";
 import {API_BASE_URL} from "@/constants/constants";
 
-
-const userApi = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        "Content-Type": "application/json",
-    },
-});
-
 //📌 타입 정리
 type ImageFile = {
     uri: string;
     name: string;
     type: string;
 };
+
+const userApi = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        "Content-Type": "application/json",
+    },
+    withCredentials: true,
+});
 
 // ✅ 로그인
 export const loginUserApi = async (email: string, password: string)=>{

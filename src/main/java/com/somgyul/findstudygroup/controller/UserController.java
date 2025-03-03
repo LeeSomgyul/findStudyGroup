@@ -7,6 +7,7 @@ import com.somgyul.findstudygroup.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +17,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     //✅ 회원가입
     @PostMapping("/userRegister")
@@ -63,6 +67,7 @@ public class UserController {
     //✅ 로그인
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
+        System.out.println("⭐ 로그인 요청 받음: " + request.getEmail());
         UserLoginResponse response = userService.LoginUser(request);
         return ResponseEntity.ok(response);
     }
