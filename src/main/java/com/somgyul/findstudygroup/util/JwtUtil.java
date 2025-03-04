@@ -12,7 +12,7 @@ import java.util.*;
 @Component
 public class JwtUtil {
     private static final String SECRET_KEY = Base64.getEncoder().encodeToString(Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded());
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 만료시간은 1시간
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 만료시간은 24시간
 
     private final Key key;
 
