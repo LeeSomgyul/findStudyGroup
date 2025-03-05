@@ -11,6 +11,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -67,7 +70,6 @@ public class UserController {
     //✅ 로그인
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
-        System.out.println("⭐ 로그인 요청 받음: " + request.getEmail());
         UserLoginResponse response = userService.LoginUser(request);
         return ResponseEntity.ok(response);
     }

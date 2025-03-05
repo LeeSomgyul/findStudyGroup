@@ -19,8 +19,6 @@ const userApi = axios.create({
 
 // ✅ 로그인
 export const loginUserApi = async (email: string, password: string)=>{
-    console.log(API_BASE_URL);
-    console.log("🔥요청 데이터:",{email, password});
     return userApi.post("/user/login", {email, password});
 }
 

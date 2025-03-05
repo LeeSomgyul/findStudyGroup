@@ -9,9 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,19 +21,17 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
     }
 
-    //✅ 로그인 및 회원가입 요청은 필터에서 제외
-    //📌 설명: 로그인 요청(/api/user/login)은 토큰 없이 요청해야 함. 즉 로그인 요청은 JWT 검사를 하지 않고 바로 Controller로 보냄.
+    //✅ 로그인,회원가입,프로필 이미지 요청은 필터에서 제외
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        AntPathMatcher pathMatcher = new AntPathMatcher();
         String path = request.getRequestURI();
-        return path.equals("/api/user/login");
+        return pathMatcher.match("/api/user/**", path) || path.startsWith("/uploads/");
     }
 
     //✅ 사용자가 보낸 JWT를 확인해서 로그인한 상태인지 인증하는 과정(이 사람이 로그인된 사용자가 맞는가?)
@@ -46,12 +44,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //1️⃣ Authorization 에서 헤더(Bearer)를 포함한 JWT 토큰 읽기
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null && !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("🚨 Authorization 헤더가 없습니다.");
             filterChain.doFilter(request, response);
             return;
         }
         //📌 Bearer 를 제거함으로 이제 순수 token 이 됨
         String token = authHeader.substring(7);
+
+        //📌 토큰이 빈 값이면 추출하지 않도록 추가
+        if(token.isEmpty()){
+            System.out.println("🚨 추출된 토큰이 비어 있습니다.");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("토큰이 유효하지 않습니다.");
+            return;
+        }
 
         try {
             //2️⃣ JWT에서 사용자 아이디(email), 전체 데이터(roles, exp 등)를 꺼냄

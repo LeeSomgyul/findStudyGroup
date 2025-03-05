@@ -1,5 +1,6 @@
 import axios from "axios";
 import {API_BASE_URL, OPENAI_API_KEY} from "@/constants/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type GoalParams = {
     userId: number | null;
@@ -7,12 +8,6 @@ type GoalParams = {
     content: string;
 }
 
-const goalApi = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        "Content-Type": "application/json",
-    },
-});
 
 //✅ ChateGPT로 랜덤 목표 가져오기
 export const fetchRandomGoals = async () => {
@@ -26,14 +21,7 @@ export const fetchRandomGoals = async () => {
                 messages: [
                     {
                         role: "system",
-                        content: "실현 가능하고 최신 트렌드를 반영한 랜덤 목표 3가지를 생성해줘.\n"+
-                            "각 목표는 신박하고 실천할 수 있어야 해.\n"+
-                            "한 문장으로 끝내고, '~하기' 형태로 작성해.\n"+
-                            "설명 없이 간결하게, 문장 앞이나 안에 기호(+,-,*, 등)를 포함하지 마.\n"+
-                            "예시:\n+"+
-                            "배달 기사가 되어 직접 음식 배달해보기\n"+
-                            "오래된 카페 방문하여 전통 차 마시기\n"+
-                            "편의점에서 신상 과자 하나 사서 먹어보기",
+                        content: "실현 가능하고 최신 트렌드를 포함하는 목표 3가지를 알려줘. 숫자, 기호 필요없고 문장은 간단하게 말해줘",
                     },
                 ],
                 temperature: 1.0, // 창의성을 높임
@@ -67,8 +55,19 @@ export const createGoal = async ({userId, date, content}: GoalParams) => {
 
 //✅ 선택한 날짜의 목표 가져오기
 export const getGoalsByDate = async (userId: number, date: string)=>{
+    const token = await AsyncStorage.getItem("token");
+
+    //📌 로그인하지 않은 상태에서 api 접근하는 경우 막기
+    if (!token) {
+        console.error("🚨 인증 토큰 없음: 로그인 후 다시 시도하세요.");
+        throw new Error("인증 토큰이 없습니다. 로그인 후 다시 시도하세요.");
+    }
+
     const response = await axios.get(`${API_BASE_URL}/goals`, {
-        params:{userId, date}
+        params:{userId, date},
+        headers: {
+            Authorization: `Bearer ${token}`,//📌 토큰 추가하여 사용자가 누군지 알기
+        },
     });
     return response.data;
 }

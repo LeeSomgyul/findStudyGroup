@@ -24,17 +24,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     //✅ Spring Security가 로그인할 때 자동으로 가장 먼저 실행하는 함수
     @Override
     public UserDetails loadUserByUsername (String email) throws UsernameNotFoundException {
-        System.out.println("🚀 CustomUserDetailsService: 사용자 검색 시작 - " + email); // ✅ 로그 추가
 
         //1️⃣ DB에서 사용자 찾기
         User user = userRepository
                 .findByemail(email)
-                .orElseThrow(() -> {
-                    System.out.println("❌ CustomUserDetailsService: 사용자 없음 - " + email); // ✅ 실패 로그 추가
-                    return new UsernameNotFoundException("사용자를 찾을 수 없습니다.: " + email);
-                });
-
-        System.out.println("✅ CustomUserDetailsService: 사용자 찾음 - " + user.getEmail()); // ✅ 성공 로그 추가
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다.: " + email));
 
         //2️⃣ DB에서 찾은 사용자 정보를 Spring Security가 이해할 수 있는 UserDetails로 변환
         return new org.springframework.security.core.userdetails.User(

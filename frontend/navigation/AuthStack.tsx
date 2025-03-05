@@ -3,7 +3,13 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "@/screens/Login";
 import JoinScreen from "@/screens/Join";
 
-const Stack = createStackNavigator();
+//✅ 타입 정의
+export type AuthStackType = {
+    Login: undefined;
+    Join: undefined;
+}
+
+const Stack = createStackNavigator<AuthStackType>();
 
 const AuthStack = () => {
     return(

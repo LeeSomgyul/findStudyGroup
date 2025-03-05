@@ -38,7 +38,7 @@ const GoalList = ({ selectedDate }: GoalListProps) => {
                 const goals = await getGoalsByDate(userId, selectedDate);
                 setGoals(goals);
             }catch(error){
-                console.error("선택한 날짜의 목표를 불러오지 못하였습니다.: ", error);
+                console.error("목표 불러오기 실패.: ", error);
             }
         }
     };

@@ -3,21 +3,28 @@ package com.somgyul.findstudygroup.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.*;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = Base64.getEncoder().encodeToString(Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded());
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 만료시간은 24시간
 
-    private final Key key;
+    private final SecretKey key;
 
-    public JwtUtil() {
-        this.key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    //✅ application.properies에 저장된 바이트(0,1)형태의 비밀키를 string 형태로 바꾸는 역할
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        byte[] decodedKey = Base64.getDecoder().decode(secret);
+        this.key = Keys.hmacShaKeyFor(decodedKey);
+    }
+
+    //✅ 위에서 가져온 비밀키를 다른 코드에서 사용할 수 있도록 반환하는 역할
+    public SecretKey getKey() {
+        return key;
     }
 
     //1️⃣ JWT 토큰 생성
@@ -46,18 +53,12 @@ public class JwtUtil {
         return extractClaims(token).getSubject();
     }
 
-    //4️⃣ JWT에서 권한 정보 추출하기
-    public List<String> extractRoles(String token){
-        Claims claims = extractClaims(token);
-        return (List<String>) claims.get("roles");
-    }
-
-    //5️⃣ JWT 토큰 만료 여부 확인
+    //4️⃣ JWT 토큰 만료 여부 확인
     private boolean isTokenExpired (String token) {
         return extractClaims(token).getExpiration().before(new Date());
     }
 
-    //6️⃣ JWT 토큰 검증(사용자와 토큰 정보가 옳은지, 토큰이 만료되었는지)
+    //5️⃣ JWT 토큰 검증(사용자와 토큰 정보가 옳은지, 토큰이 만료되었는지)
     public boolean validateToken(String token) {
         try{
             extractClaims(token);
