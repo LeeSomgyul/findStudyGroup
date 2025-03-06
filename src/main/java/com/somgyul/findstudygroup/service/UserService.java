@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -107,14 +106,12 @@ public class UserService {
 
     /*✅ 로그인*/
     public UserLoginResponse LoginUser(UserLoginRequest request) {
-        System.out.println("🔥 로그인 요청 받음: " + request.getEmail());
 
         //1️⃣ 사용자가 입력한 이메일, 비밀번호를 Spring Security 전송하여 확인해보기
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        System.out.println("🔥 사용자 인증 성공: " + authentication.getName()); // ✅ 성공 로그 추가
 
         //2️⃣ 사용자 정보 가져오기
         User user = userRepository
@@ -130,8 +127,6 @@ public class UserService {
         //4️⃣ 토큰 생성
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtUtil.generateToken(userDetails);
-
-        System.out.println("🔥 JWT 생성 성공: " + token);
 
         return new UserLoginResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), profileImage, token);
     }

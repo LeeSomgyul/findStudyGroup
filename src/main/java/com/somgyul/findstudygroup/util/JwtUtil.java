@@ -12,14 +12,15 @@ import java.util.*;
 
 @Component
 public class JwtUtil {
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 만료시간은 24시간
 
     private final SecretKey key;
+    private final long expirationTime;
 
     //✅ application.properies에 저장된 바이트(0,1)형태의 비밀키를 string 형태로 바꾸는 역할
-    public JwtUtil(@Value("${jwt.secret}") String secret) {
+    public JwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration-time}")long expirationTime) {
         byte[] decodedKey = Base64.getDecoder().decode(secret);
         this.key = Keys.hmacShaKeyFor(decodedKey);
+        this.expirationTime = expirationTime;
     }
 
     //✅ 위에서 가져온 비밀키를 다른 코드에서 사용할 수 있도록 반환하는 역할
@@ -38,7 +39,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -55,15 +56,27 @@ public class JwtUtil {
 
     //4️⃣ JWT 토큰 만료 여부 확인
     private boolean isTokenExpired (String token) {
-        return extractClaims(token).getExpiration().before(new Date());
+        Claims claims = extractClaims(token);
+        Date expiration = claims.getExpiration();
+        System.out.println("🔥Expiration date: " + expiration);
+        System.out.println("🔥Current date: " + new Date());
+        return expiration.before(new Date());
     }
 
     //5️⃣ JWT 토큰 검증(사용자와 토큰 정보가 옳은지, 토큰이 만료되었는지)
     public boolean validateToken(String token) {
         try{
-            extractClaims(token);
-            return !isTokenExpired(token);
+            System.out.println("🔥Extracting claims for token: " + token);
+            Claims claims = extractClaims(token);
+            System.out.println("🔥 Claims extracted: " + claims);
+
+            // ✅ 토큰 만료 여부 확인
+            boolean expired = isTokenExpired(token);
+            System.out.println("🔥 Is token expired: " + expired);
+
+            return !expired;
         }catch (Exception e) {
+            System.out.println("🔥Validate token failed: " + e.getMessage());
             return false;
         }
     }

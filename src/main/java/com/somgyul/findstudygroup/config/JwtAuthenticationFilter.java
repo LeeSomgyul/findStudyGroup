@@ -16,6 +16,7 @@ import org.springframework.util.AntPathMatcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -41,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        //1️⃣ Authorization 에서 헤더(Bearer)를 포함한 JWT 토큰 읽기
+       //1️⃣ Authorization 에서 헤더(Bearer)를 포함한 JWT 토큰 읽기
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -61,18 +62,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
+            System.out.println("🔥Token: " + token);
+
             //2️⃣ JWT에서 사용자 아이디(email), 전체 데이터(roles, exp 등)를 꺼냄
             String email = jwtUtil.extractEmail(token);
             Claims claims = jwtUtil.extractClaims(token);
 
+            System.out.println("🔥Extracted email: " + email);
+            System.out.println("🔥Claims: " + claims);
+
             //3️⃣ 사용자가 로그인한 상태인지 확인하기
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                System.out.println("🔥Validating token: " + token);
+
                 //📌 JWT가 유효한지 검사(만료, 위조 확인)
                 if(jwtUtil.validateToken(token)) {
-                    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    List<String> roles = (List<String>) claims.get("roles");
+                    System.out.println("🔥Token is valid");
 
-                    for(String role : roles) {
+                    Object rolesObj = claims.get("roles");
+                    List<String> roles = new ArrayList<>();
+
+                    System.out.println("🔥Roles: " + roles);
+
+                    if(rolesObj instanceof List){
+                        List<?> roleList = (List<?>) rolesObj;
+                        for(Object role : roleList){
+                            if(role instanceof Map){
+                                Map<?, ?> roleMap = (Map<?, ?>) role;
+                                String authority = (String) roleMap.get("authority");
+                                if (authority != null) {
+                                    roles.add(authority);
+                                }
+                            }else if (role instanceof String){
+                                roles.add(role.toString());
+                            }
+                        }
+                    }
+
+                    System.out.println("🔥Parsed roles: " + roles);
+
+                    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    for(String role : roles){
+                        System.out.println("🔥 Adding role: " + role);
                         authorities.add(new SimpleGrantedAuthority(role));
                     }
 
@@ -80,7 +111,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(email, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+
+                    System.out.println("🔥Authentication set");
+                }else {
+                System.out.println("🔥Token validation returned false");
+            }
             }
         } catch (Exception e) {
             //4️⃣ 검증 실패 시 401 상태 반환

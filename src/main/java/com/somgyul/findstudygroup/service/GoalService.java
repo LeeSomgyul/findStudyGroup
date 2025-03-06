@@ -69,13 +69,19 @@ public class GoalService {
 
     /*✅ 특정 날짜의 목표 가져오기*/
     public List<GoalDto> getGoalsByDate(Long userId, LocalDate date) {
+        System.out.println("🔥Service: Finding user with userId=" + userId);
+
         //1️⃣ userId로 user 찾기
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
+        System.out.println("🔥Service: User found: " + user.getId());
+        System.out.println("🔥Service: Fetching goals for userId=" + userId + ", date=" + date);
+
         //2️⃣ 사용자의 목표 불러오기
-        List<Goal> goals = goalRepository.findByUserIdAndDate(user, date);
+        List<Goal> goals = goalRepository.findByUserAndDate(user, date);
+        System.out.println("🔥Service: Goals found: " + goals);
 
         //3️⃣ Goal를 GoalDto로 변환
         return goals.stream().map(GoalDto::fromEntity).collect(Collectors.toList());

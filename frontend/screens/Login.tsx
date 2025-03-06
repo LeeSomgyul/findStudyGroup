@@ -43,7 +43,6 @@ const Login: React.FC = () => {
             await AsyncStorage.setItem("token", token);
             await AsyncStorage.setItem("profileImage", profileImage);
 
-
             //4️⃣ 기본 토근으로 설정하여 api접근 시 사용자가 누군지 알 수 있음
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 

@@ -1,7 +1,6 @@
 package com.somgyul.findstudygroup.controller;
 
 import com.somgyul.findstudygroup.dto.GoalDto;
-import com.somgyul.findstudygroup.entity.Goal;
 import com.somgyul.findstudygroup.service.GoalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,11 +26,21 @@ public class GoalController {
     /*✅ 특정 날짜의 목표 가져오기*/
     @GetMapping
     public ResponseEntity<List<GoalDto>> getGoalsByDate(@RequestParam Long userId, @RequestParam String date) {
+        System.out.println("🔥GoalController에 도달: userId=" + userId + ", date=" + date);
         try{
+            System.out.println("🔥Parsing date: " + date);
+
             LocalDate localDate = LocalDate.parse(date);
+            System.out.println("🔥Calling service with userId=" + userId + ", date=" + localDate);
+
             List<GoalDto> goalDtos = goalService.getGoalsByDate(userId, localDate);
+            System.out.println("🔥Goals retrieved: " + goalDtos);
+
             return ResponseEntity.ok(goalDtos);
         }catch(Exception e){
+            System.out.println("🔥Error in getGoalsByDate: " + e.getMessage());
+            e.printStackTrace();
+
             return ResponseEntity.badRequest().body(null);
         }
     }
