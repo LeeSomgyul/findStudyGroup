@@ -46,7 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("🚨 Authorization 헤더가 없습니다.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,34 +54,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //📌 토큰이 빈 값이면 추출하지 않도록 추가
         if(token.isEmpty()){
-            System.out.println("🚨 추출된 토큰이 비어 있습니다.");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("토큰이 유효하지 않습니다.");
             return;
         }
 
         try {
-            System.out.println("🔥Token: " + token);
-
-            //2️⃣ JWT에서 사용자 아이디(email), 전체 데이터(roles, exp 등)를 꺼냄
+            //1️⃣ JWT에서 사용자 아이디(email), 전체 데이터(roles, exp 등)를 꺼냄
             String email = jwtUtil.extractEmail(token);
             Claims claims = jwtUtil.extractClaims(token);
 
-            System.out.println("🔥Extracted email: " + email);
-            System.out.println("🔥Claims: " + claims);
-
-            //3️⃣ 사용자가 로그인한 상태인지 확인하기
+            //2️⃣ 사용자가 로그인한 상태인지 확인하기
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                System.out.println("🔥Validating token: " + token);
 
                 //📌 JWT가 유효한지 검사(만료, 위조 확인)
                 if(jwtUtil.validateToken(token)) {
-                    System.out.println("🔥Token is valid");
-
                     Object rolesObj = claims.get("roles");
                     List<String> roles = new ArrayList<>();
-
-                    System.out.println("🔥Roles: " + roles);
 
                     if(rolesObj instanceof List){
                         List<?> roleList = (List<?>) rolesObj;
@@ -99,11 +87,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         }
                     }
 
-                    System.out.println("🔥Parsed roles: " + roles);
-
                     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
                     for(String role : roles){
-                        System.out.println("🔥 Adding role: " + role);
                         authorities.add(new SimpleGrantedAuthority(role));
                     }
 
@@ -111,11 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(email, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                    System.out.println("🔥Authentication set");
-                }else {
-                System.out.println("🔥Token validation returned false");
-            }
+                }
             }
         } catch (Exception e) {
             //4️⃣ 검증 실패 시 401 상태 반환

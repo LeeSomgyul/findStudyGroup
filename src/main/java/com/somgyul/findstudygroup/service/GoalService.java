@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,7 +45,7 @@ public class GoalService {
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
         //4️⃣ 해당 날짜에 목표가 5개 이상 있다면 예외처리
-        Long count = goalRepository.countByUserIdAndDate(user, goalDate);
+        Long count = goalRepository.countByUserIdAndDate(user.getId(), goalDate);
         if(count >= 5){
             throw new GoalLimitExceededException("목표는 하루 최대 5개까지 가능합니다.");
         }
@@ -69,19 +68,14 @@ public class GoalService {
 
     /*✅ 특정 날짜의 목표 가져오기*/
     public List<GoalDto> getGoalsByDate(Long userId, LocalDate date) {
-        System.out.println("🔥Service: Finding user with userId=" + userId);
 
         //1️⃣ userId로 user 찾기
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        System.out.println("🔥Service: User found: " + user.getId());
-        System.out.println("🔥Service: Fetching goals for userId=" + userId + ", date=" + date);
-
         //2️⃣ 사용자의 목표 불러오기
         List<Goal> goals = goalRepository.findByUserAndDate(user, date);
-        System.out.println("🔥Service: Goals found: " + goals);
 
         //3️⃣ Goal를 GoalDto로 변환
         return goals.stream().map(GoalDto::fromEntity).collect(Collectors.toList());

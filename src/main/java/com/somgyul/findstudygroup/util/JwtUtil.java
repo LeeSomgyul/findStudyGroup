@@ -58,25 +58,19 @@ public class JwtUtil {
     private boolean isTokenExpired (String token) {
         Claims claims = extractClaims(token);
         Date expiration = claims.getExpiration();
-        System.out.println("🔥Expiration date: " + expiration);
-        System.out.println("🔥Current date: " + new Date());
         return expiration.before(new Date());
     }
 
     //5️⃣ JWT 토큰 검증(사용자와 토큰 정보가 옳은지, 토큰이 만료되었는지)
     public boolean validateToken(String token) {
         try{
-            System.out.println("🔥Extracting claims for token: " + token);
             Claims claims = extractClaims(token);
-            System.out.println("🔥 Claims extracted: " + claims);
 
             // ✅ 토큰 만료 여부 확인
             boolean expired = isTokenExpired(token);
-            System.out.println("🔥 Is token expired: " + expired);
 
             return !expired;
         }catch (Exception e) {
-            System.out.println("🔥Validate token failed: " + e.getMessage());
             return false;
         }
     }

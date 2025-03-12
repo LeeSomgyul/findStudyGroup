@@ -19,26 +19,21 @@ public class GoalController {
     /*✅ 목표 추가 기능*/
     @PostMapping
     public ResponseEntity<GoalDto> createGoal(@RequestBody GoalDto goalDto) {
+        System.out.println("🔥POST /api/golas 으로 요청받음: " + goalDto);
         GoalDto newGoal = goalService.createGoal(goalDto);
+        System.out.println("🔥사용자가 보낸 새로운 목표: " + newGoal);
         return ResponseEntity.status(HttpStatus.CREATED).body(newGoal);
     }
 
     /*✅ 특정 날짜의 목표 가져오기*/
     @GetMapping
     public ResponseEntity<List<GoalDto>> getGoalsByDate(@RequestParam Long userId, @RequestParam String date) {
-        System.out.println("🔥GoalController에 도달: userId=" + userId + ", date=" + date);
         try{
-            System.out.println("🔥Parsing date: " + date);
-
             LocalDate localDate = LocalDate.parse(date);
-            System.out.println("🔥Calling service with userId=" + userId + ", date=" + localDate);
-
             List<GoalDto> goalDtos = goalService.getGoalsByDate(userId, localDate);
-            System.out.println("🔥Goals retrieved: " + goalDtos);
 
             return ResponseEntity.ok(goalDtos);
         }catch(Exception e){
-            System.out.println("🔥Error in getGoalsByDate: " + e.getMessage());
             e.printStackTrace();
 
             return ResponseEntity.badRequest().body(null);

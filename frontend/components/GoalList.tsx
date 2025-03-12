@@ -23,13 +23,8 @@ const GoalList = ({ selectedDate }: GoalListProps) => {
     // ✅ AsyncStorage에서 userId 가져오기
     useEffect(() => {
         const fetchUserId = async () => {
-            console.log("🔥fetchUserId 실행 시작");
 
             const storedUserId = await AsyncStorage.getItem("userId");
-            const token = await AsyncStorage.getItem("token");
-
-            console.log("🔥goallist.tsx의 토큰: " + token);
-            console.log("🔥goallist.tsx의 userId: " + storedUserId);
 
             if (storedUserId) {
                 setUserId(Number(storedUserId));
@@ -42,9 +37,8 @@ const GoalList = ({ selectedDate }: GoalListProps) => {
     const fetchGoals = async () => {
         if(userId && selectedDate){
             try{
-                console.log("🔥fetchGoals 호출, userId:", userId, "selectedDate:", selectedDate);
                 const goals = await getGoalsByDate(userId, selectedDate);
-                console.log("🔥api 갔다온 goals: ", goals);
+                console.log("🔥목표 리스트: ", goals);
                 setGoals(goals);
             }catch(error){
                 console.error("목표 불러오기 실패.: ", error);

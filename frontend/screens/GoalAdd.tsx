@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {View, Text, Button, FlatList, TouchableOpacity, Alert} from "react-native";
+import {View, Text, Button, FlatList, TouchableOpacity, Alert, Platform} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -77,7 +77,11 @@ const GoalAdd = () => {
     //✅ 목표 추가 확정 버튼
     const handleAddGoals = async () => {
         if(selectedGoals.length === 0){
-            Alert.alert("목표를 선택해주세요!");
+            if(Platform.OS === 'web'){
+                window.alert("목표를 선택해주세요.");
+            }else{
+                Alert.alert("목표를 선택해주세요!");
+            }
             return;
         }
         try{
@@ -86,11 +90,19 @@ const GoalAdd = () => {
                     createGoal({userId, date: selectedDate, content: goal})
                 )
             );
-            Alert.alert("목표가 추가되었습니다!");
+            if(Platform.OS === 'web'){
+                window.alert("목표가 추가되었습니다.");
+            }else{
+                Alert.alert("목표가 추가되었습니다.");
+            }
             navigation.goBack();
         }catch (error){
             console.log("목표 추가 실패: ", error);
-            Alert.alert("목표 추가에 실패하였습니다.");
+            if(Platform.OS === 'web'){
+                window.alert("목표 추가에 실패하였습니다.");
+            }else{
+                Alert.alert("목표 추가에 실패하였습니다.");
+            }
         }
     };
 

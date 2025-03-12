@@ -1,6 +1,5 @@
 package com.somgyul.findstudygroup.config;
 
-import com.somgyul.findstudygroup.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

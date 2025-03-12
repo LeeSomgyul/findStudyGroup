@@ -14,6 +14,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     List<Goal> findByUserAndDate(User user, LocalDate date);
 
     //✅ 특정 사용자(user)가 특정 날짜(date)에 목표를 몇개 가지고 있는지 세는 함수
-    Long countByUserIdAndDate(User user, LocalDate date);
+    Long countByUserIdAndDate(Long userId, LocalDate date);
 }
 

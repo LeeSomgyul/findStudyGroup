@@ -57,11 +57,8 @@ export const createGoal = async ({userId, date, content}: GoalParams) => {
 export const getGoalsByDate = async (userId: number, date: string)=>{
     const token = await AsyncStorage.getItem("token");
 
-    console.log("🔥goalApi.ts에서 token: " + token);
-
     //📌 로그인하지 않은 상태에서 api 접근하는 경우 막기
     if (!token) {
-        console.error("🔥 인증 토큰 없음: 로그인 후 다시 시도하세요.");
         throw new Error("인증 토큰이 없습니다. 로그인 후 다시 시도하세요.");
     }
 
@@ -70,11 +67,8 @@ export const getGoalsByDate = async (userId: number, date: string)=>{
         headers: {Authorization: `Bearer ${token}`},
     }
 
-    console.log("🔥getGoalsByDate 요청 준비: ", `${API_BASE_URL}/goals`, config);
-
     const response = await axios.get(`${API_BASE_URL}/goals`, config);
 
-    console.log("🔥goalApi.ts응답: ", `${API_BASE_URL}/goals` ,response.config);
     return response.data;
 }
 
