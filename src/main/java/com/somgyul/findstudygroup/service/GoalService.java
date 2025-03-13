@@ -3,15 +3,16 @@ package com.somgyul.findstudygroup.service;
 import com.somgyul.findstudygroup.dto.GoalDto;
 import com.somgyul.findstudygroup.entity.Goal;
 import com.somgyul.findstudygroup.entity.User;
+import com.somgyul.findstudygroup.exception.*;
 import com.somgyul.findstudygroup.repository.GoalRepository;
 import com.somgyul.findstudygroup.repository.UserRepository;
-import com.somgyul.findstudygroup.exception.GoalLimitExceededException;
-import com.somgyul.findstudygroup.exception.InvalidGoalDateException;
-import com.somgyul.findstudygroup.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,18 +82,41 @@ public class GoalService {
         return goals.stream().map(GoalDto::fromEntity).collect(Collectors.toList());
     }
 
-    /*✅ 목표 달성 상태 바꾸기(달성, 미달성)*/
-    public GoalDto updateGoalCompletion(Long goalId, boolean isCompleted) {
-        //1️⃣ goalId에 해당하는 목표를 찾음
-        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new RuntimeException("목표를 찾지 못하였습니다."));
-        //2️⃣ 상태가 이미 원하는 값이면 DB에 이중 저장하지 말고 바로 상태 반환
-        if(goal.isCompleted() == isCompleted){
-            return GoalDto.fromEntity(goal);
+    @Transactional
+    /*✅ 목표 완료 시 사진, 글 작성하기*/
+    public GoalDto completeGoal(Long goalId, MultipartFile image, String description) {
+        //1️⃣ DB에서 목표 찾기
+        Goal goal = goalRepository
+                .findById(goalId)
+                .orElseThrow(()->new GoalNotFoundException("존재하지 않는 목표입니다."));
+
+        //2️⃣ 이미 완료된 목표인 경우의 처리
+        if(goal.isCompleted()){
+            throw new GoalAlreadyCompletedException("이미 완료된 목표입니다.");
         }
-        //3️⃣ 목표 상태를 변경(달성, 미달성) 후 DB에 저장
-        goal.setCompleted(isCompleted);
-        Goal updated = goalRepository.save(goal);
-        //4️⃣ Goal를 GoalDto로 변환해서 사용자에게 필요한 정보만 전달
-        return GoalDto.fromEntity(updated);
+
+        //3️⃣ 목표 완료 유무, 사진, 글 업로드
+        String imageUrl = uploadImage(image);
+        goal.setCompleted(true);
+        goal.setImageUrl(imageUrl);
+        if(description != null && !description.trim().isEmpty()){
+            goal.setDescription(description);
+        }
+
+        Goal updatedGoal = goalRepository.save(goal);
+        return GoalDto.fromEntity(updatedGoal);//📌Entity를 Dto로 변환해서 전달
+    }
+
+    /*✅ 사진 업로드 함수*/
+    private String uploadImage(MultipartFile image) {
+        try{
+            String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+            String uploadHeaderPath = "uploads/";
+            File imageFile = new File(uploadHeaderPath + fileName);
+            image.transferTo(imageFile);
+            return "/uploads/" + fileName;
+        }catch(IOException e){
+            throw new ImageUploadFailedException("사진 업로드에 실패: " + e.getMessage());
+        }
     }
 }

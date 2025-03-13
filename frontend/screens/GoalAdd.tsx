@@ -96,12 +96,12 @@ const GoalAdd = () => {
                 Alert.alert("목표가 추가되었습니다.");
             }
             navigation.goBack();
-        }catch (error){
-            console.log("목표 추가 실패: ", error);
+        }catch (error:any){
+            const errorMessage = error.response?.data?.message || "목표 추가에 실패하였습니다.";
             if(Platform.OS === 'web'){
-                window.alert("목표 추가에 실패하였습니다.");
+                window.alert(errorMessage);
             }else{
-                Alert.alert("목표 추가에 실패하였습니다.");
+                Alert.alert(errorMessage);
             }
         }
     };

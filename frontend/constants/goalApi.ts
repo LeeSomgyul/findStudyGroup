@@ -1,6 +1,7 @@
 import axios from "axios";
 import {API_BASE_URL, OPENAI_API_KEY} from "@/constants/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {Multiplier} from "lightningcss";
 
 type GoalParams = {
     userId: number | null;
@@ -50,7 +51,7 @@ export const createGoal = async ({userId, date, content}: GoalParams) => {
     const response = await axios.post(`${API_BASE_URL}/goals`, {
         userId, date, content,
     });
-    return response.data;
+    return response.data.data;
 }
 
 //✅ 선택한 날짜의 목표 가져오기
@@ -72,10 +73,21 @@ export const getGoalsByDate = async (userId: number, date: string)=>{
     return response.data;
 }
 
-// ✅ 목표 달성 상태 바꾸기(달성, 미달성)
-export const updateGoalCompletion = async (goalId: number, isCompleted: boolean)=>{
-    const response = await axios.post(`${API_BASE_URL}/goals/${goalId}/completion`,null,{
-        params:{isCompleted: !isCompleted}
+//✅ 목표 완료 시 사진, 글 작성하기
+export const completeGoal = async (goalId: number, image: File, description?: string) => {
+    const token = await AsyncStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("image", image);
+    if(description){
+        formData.append("description", description);
+    }
+    console.log("🔥api로 넘어온 goal정보: ", {goalId, image, description});
+
+    const response = await axios.put(`${API_BASE_URL}/goals/${goalId}/complete`, formData, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+        },
     });
-    return response.data;
+    return response.data.data;
 }

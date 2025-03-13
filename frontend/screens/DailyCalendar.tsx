@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from "react";
-import { View, Text } from "react-native";
+import { View, Text} from "react-native";
 import {useNavigation} from "@react-navigation/native";
-import { Calendar } from "react-native-calendars";
+import {Calendar} from "react-native-calendars";
 
 import {AuthContext} from "@/app/authContext";
 import GoalList from "../components/GoalList";

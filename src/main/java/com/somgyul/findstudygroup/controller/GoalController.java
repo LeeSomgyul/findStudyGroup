@@ -1,11 +1,17 @@
 package com.somgyul.findstudygroup.controller;
 
+import com.somgyul.findstudygroup.dto.ApiResponse;
 import com.somgyul.findstudygroup.dto.GoalDto;
+import com.somgyul.findstudygroup.exception.GoalLimitExceededException;
+import com.somgyul.findstudygroup.exception.InvalidGoalDateException;
+import com.somgyul.findstudygroup.exception.UserNotFoundException;
 import com.somgyul.findstudygroup.service.GoalService;
+import com.somgyul.findstudygroup.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,14 +21,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
+    private final UserService userService;
 
     /*✅ 목표 추가 기능*/
     @PostMapping
-    public ResponseEntity<GoalDto> createGoal(@RequestBody GoalDto goalDto) {
-        System.out.println("🔥POST /api/golas 으로 요청받음: " + goalDto);
-        GoalDto newGoal = goalService.createGoal(goalDto);
-        System.out.println("🔥사용자가 보낸 새로운 목표: " + newGoal);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newGoal);
+    public ResponseEntity<ApiResponse<GoalDto>> createGoal(@RequestBody GoalDto goalDto) {
+        try{
+            GoalDto newGoal = goalService.createGoal(goalDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(newGoal));
+        }catch(GoalLimitExceededException | InvalidGoalDateException | UserNotFoundException error){
+            return ResponseEntity.badRequest().body(ApiResponse.error(error.getMessage()));
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("서버 오류가 발생하였습니다."));
+        }
     }
 
     /*✅ 특정 날짜의 목표 가져오기*/
@@ -40,19 +51,20 @@ public class GoalController {
         }
     }
 
-    /*✅ 목표 달성 상태 바꾸기(달성, 미달성)*/
-    @PostMapping("/{goalId}/completion")
-    public ResponseEntity<GoalDto> updateGoalCompletion (@PathVariable Long goalId, @RequestBody boolean isCompleted) {
+    /*✅ 목표 완료 시 사진, 글 작성하기*/
+    @PutMapping("/{goalId}/complete")
+    public ResponseEntity<ApiResponse<GoalDto>> completeGoal(
+            @PathVariable Long goalId,
+            @RequestPart("image") MultipartFile image,
+            @RequestPart(value = "description", required = false) String description) {
+        System.out.println("🔥controller로 goalId 전송 확인:" + goalId);
         try{
-            //1️⃣ 목표 상태 정상 업데이트 하면 200 반환
-            GoalDto updatedGoal = goalService.updateGoalCompletion(goalId, isCompleted);
-            return ResponseEntity.ok(updatedGoal);
-        }catch(RuntimeException e){
-            //2️⃣ 목표를 찾을 수 없는 경우 404 반환
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }catch(Exception e){
-            //3️⃣ 기타 예외 발생 시 500 반환
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            GoalDto updateGoal = goalService.completeGoal(goalId, image, description);
+            System.out.println("🔥service에서 처리 완료 확인: " + updateGoal);
+            return ResponseEntity.ok(ApiResponse.success(updateGoal));
+        }catch (Exception e){
+            System.out.println("🔥service가기 전에 막힘: " + e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 }

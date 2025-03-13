@@ -65,6 +65,7 @@ const GoalList = ({ selectedDate }: GoalListProps) => {
             console.log("목표의 상태 변경에 실패하였습니다.: ", error);
         }
     };
+    //🔥🔥🔥🔥🔥그록보고 goallist.tsx작성하기
 
     return (
         <View style={{ padding: 10 }}>
