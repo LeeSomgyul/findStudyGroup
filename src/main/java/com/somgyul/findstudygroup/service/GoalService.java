@@ -110,9 +110,17 @@ public class GoalService {
     /*✅ 사진 업로드 함수*/
     private String uploadImage(MultipartFile image) {
         try{
+            String currentDir = System.getProperty("user.dir");//1️⃣현재 작업 디렉토리(findStudyGroup)
+            System.out.println("🔥현재 경로:" + currentDir);
+            String uploadDir = currentDir + "/uploads/";
+            File uploadDirFile = new File(uploadDir);//2️⃣uploadDir를 포함하여 File 객체 생성
+            //3️⃣upload경로 없으면 폴더 생성
+            if(!uploadDirFile.exists()){
+                uploadDirFile.mkdirs();
+                System.out.println("🔥upload경로 없어서 만듬: " + uploadDir);
+            }
             String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-            String uploadHeaderPath = "uploads/";
-            File imageFile = new File(uploadHeaderPath + fileName);
+            File imageFile = new File(uploadDir + fileName);
             image.transferTo(imageFile);
             return "/uploads/" + fileName;
         }catch(IOException e){
